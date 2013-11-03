@@ -1,0 +1,10 @@
+C:\Users\D059130\Documents\Visual Studio 2010\Projects\LockDataService\LockDataService\bin\LockDataService.dll
+C:\Users\D059130\Documents\Visual Studio 2010\Projects\LockDataService\LockDataService\bin\LockDataService.pdb
+C:\Users\D059130\Documents\Visual Studio 2010\Projects\LockDataService\LockDataService\obj\Debug\LockDataService.dll
+C:\Users\D059130\Documents\Visual Studio 2010\Projects\LockDataService\LockDataService\obj\Debug\LockDataService.pdb
+C:\Users\D059130\Documents\Visual Studio 2010\Projects\LockDataService\LockDataService\obj\Debug\LockDataService.csprojResolveAssemblyReference.cache
+C:\Git\LockDataService\LockDataService\bin\LockDataService.dll
+C:\Git\LockDataService\LockDataService\bin\LockDataService.pdb
+C:\Git\LockDataService\LockDataService\obj\Debug\LockDataService.csprojResolveAssemblyReference.cache
+C:\Git\LockDataService\LockDataService\obj\Debug\LockDataService.dll
+C:\Git\LockDataService\LockDataService\obj\Debug\LockDataService.pdb

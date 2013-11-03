@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="SSO_UserModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+  <EntityContainer Name="SSO_UserModelStoreContainer">
+    <EntitySet Name="ClientIdentifier" EntityType="SSO_UserModel.Store.ClientIdentifier" store:Type="Tables" Schema="dbo" />
+  </EntityContainer>
+  <EntityType Name="ClientIdentifier">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="HashedClientId" Type="nchar" MaxLength="256" />
+    <Property Name="Salt" Type="nchar" MaxLength="256" />
+    <Property Name="Secret" Type="nchar" MaxLength="256" />
+    <Property Name="UserName" Type="nchar" Nullable="false" MaxLength="256" />
+    <Property Name="DateCreated" Type="date" />
+    <Property Name="LastLogin" Type="date" />
+  </EntityType>
+</Schema>
