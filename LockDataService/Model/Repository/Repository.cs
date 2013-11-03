@@ -4,9 +4,9 @@ using System.Data;
 using LockDataService.Model.Entity;
 using System.Linq;
 
-namespace LockDataService.Model.Repository
+namespace LockDataService.Model.Repository 
 {
-    public class Repository
+    public class Repository : IRepository
     {
         
         public static SSO_UserEntities Entities = new SSO_UserEntities();

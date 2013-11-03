@@ -89,6 +89,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UserModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\Repository\MockRepository.cs" />
+    <Compile Include="Model\Repository\IRepository.cs" />
     <Compile Include="Model\Repository\Repository.cs" />
     <Compile Include="Model\UserModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +99,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>User.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Service\AuthHandler.cs" />
     <Compile Include="Service\AuthService.cs" />
     <Compile Include="Service\PasswordHash.cs" />
   </ItemGroup>

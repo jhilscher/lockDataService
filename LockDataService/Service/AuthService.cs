@@ -20,7 +20,7 @@ namespace LockDataService.Service
 
         private const int HashByteSize = 64;
 
-        private static readonly Dictionary<String, byte[]> TokenMap = new Dictionary<string, byte[]>();
+        //private static readonly Dictionary<String, byte[]> TokenMap = new Dictionary<string, byte[]>();
 
         /// <summary>
         /// XORs to byte arrays
@@ -59,7 +59,7 @@ namespace LockDataService.Service
             byte[] alpha = Xor(secretBytes, token);
 
             // Timestamp
-            Double timeStamp = DateTime.Now.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            int timeStamp = (int)DateTime.Now.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
             // hashed token
             byte[] hashedToeken = PasswordHash.PBKDF2(PasswordHash.ByteArrayToString(token),
@@ -68,7 +68,8 @@ namespace LockDataService.Service
 
             // Add to map
             //TokenMap.Add(userName, hashedToeken);
-            TokenMap[userName] = hashedToeken;
+            //TokenMap[userName] = hashedToeken;
+            AuthHandler.AddToWaitList(userName, hashedToeken);
 
             // return alpha + epoch timestamp 
             return PasswordHash.ByteArrayToString(alpha) + "#" + Convert.ToString(timeStamp);
@@ -77,7 +78,7 @@ namespace LockDataService.Service
 
         public static Boolean ValidateToken(String token, String userName, String timeStamp)
         {
-            byte[] oldHashedToken = TokenMap[userName];
+            byte[] oldHashedToken = AuthHandler.GetToken(userName);
 
 
             bool result = PasswordHash.ValidatePassword(token, PasswordHash.ByteArrayToString(oldHashedToken));

@@ -16,10 +16,11 @@ namespace LockDataService
     public class DataService : IDataService
     {
 
-        //private static List<UserModel> usersModels = new List<UserModel>(); 
+        
 
-        private Repository _repository = new Repository();
+        //private readonly IRepository _repository = new Repository();
 
+        private readonly IRepository _repository = new MockRepository();
 
         public List<UserModel> GetAll()
         {
@@ -85,7 +86,16 @@ namespace LockDataService
 
         public string GetToken(string userName)
         {
-            return AuthService.GenerateToken(userName);
+            string token;
+            try
+            {
+                token = AuthService.GenerateToken(userName);
+            }
+            catch (ArgumentException e)
+            {
+                throw new WebFaultException(HttpStatusCode.NoContent);
+            }
+            return token;
         }
 
 

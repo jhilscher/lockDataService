@@ -8,3 +8,8 @@ C:\Git\LockDataService\LockDataService\bin\LockDataService.pdb
 C:\Git\LockDataService\LockDataService\obj\Debug\LockDataService.csprojResolveAssemblyReference.cache
 C:\Git\LockDataService\LockDataService\obj\Debug\LockDataService.dll
 C:\Git\LockDataService\LockDataService\obj\Debug\LockDataService.pdb
+C:\Users\D059130\git\LockDataService\LockDataService\bin\LockDataService.dll
+C:\Users\D059130\git\LockDataService\LockDataService\bin\LockDataService.pdb
+C:\Users\D059130\git\LockDataService\LockDataService\obj\Debug\LockDataService.csprojResolveAssemblyReference.cache
+C:\Users\D059130\git\LockDataService\LockDataService\obj\Debug\LockDataService.dll
+C:\Users\D059130\git\LockDataService\LockDataService\obj\Debug\LockDataService.pdb
