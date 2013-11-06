@@ -90,12 +90,12 @@ namespace LockDataService.Model.Repository
 
             return new UserModel
             {
-                HashedClientId = clientIdentifier.HashedClientId,
-                Salt = clientIdentifier.Salt,
-                Secret = clientIdentifier.Secret,
+                HashedClientId = clientIdentifier.HashedClientId.Trim(),
+                Salt = clientIdentifier.Salt.Trim(),
+                Secret = clientIdentifier.Secret.Trim(),
                 DateTimeCreated = clientIdentifier.DateCreated,
                 DateTimeLogin = clientIdentifier.LastLogin,
-                UserName = clientIdentifier.UserName
+                UserName = clientIdentifier.UserName.Trim()
             };
         }
 

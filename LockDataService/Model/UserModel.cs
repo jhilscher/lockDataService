@@ -27,6 +27,9 @@ namespace LockDataService.Model
         [DataMember(Name = "secret")]
         public string Secret { get; set; }
 
+        [DataMember(Name = "token")]
+        public string Token { get; set; }
+
         private DateTime? _dateCreated;
 
         private DateTime? _lastLogin;

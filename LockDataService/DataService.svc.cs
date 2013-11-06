@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
@@ -12,15 +13,16 @@ using LockDataService.Service;
 
 namespace LockDataService
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "DataService" in code, svc and config file together.
+
     public class DataService : IDataService
     {
 
-        
+        /// <summary>
+        /// Repository to access the db.
+        /// </summary>
+        private readonly IRepository _repository = new Repository();
 
-        //private readonly IRepository _repository = new Repository();
-
-        private readonly IRepository _repository = new MockRepository();
+        //private readonly IRepository _repository = new MockRepository();
 
         public List<UserModel> GetAll()
         {
@@ -33,27 +35,22 @@ namespace LockDataService
             return json;
         }
 
-        public UserModel RegisterRequest(UserModel json)
+        public void ConfirmRegister(UserModel json)
         {
-            int code = _repository.CreateUser(json);
 
-            if (code < 0)
+            if (!RegistrationService.ConfirmRegistration(json))
                 throw new WebFaultException(HttpStatusCode.NotAcceptable);
 
-            return json;
         }
 
-        public UserModel Register(UserModel json)
+        public string RequestRegister(UserModel json)
         {
-            json.DateTimeCreated = DateTime.Now;
-            int code = _repository.CreateUser(json);
+            string resp = RegistrationService.RegisterRequest(json.UserName);
 
-            if (code < 0)
+            if (resp == null)
                 throw new WebFaultException(HttpStatusCode.NotAcceptable);
-
-            return json;
+            return resp;
         }
-
 
         public UserModel GetUser(string userName)
         {
@@ -62,7 +59,6 @@ namespace LockDataService
                 throw new WebFaultException(HttpStatusCode.NoContent);
             return user;
         }
-
 
         public int Delete(string userName)
         {
@@ -83,7 +79,6 @@ namespace LockDataService
             return _repository.UpdateUser(json);
         }
 
-
         public string GetToken(string userName)
         {
             string token;
@@ -98,10 +93,17 @@ namespace LockDataService
             return token;
         }
 
-
-        public string ValidateToken(string userName, string token, string timestamp)
+        public string ValidateToken(UserModel json)
         {
-            return AuthService.ValidateToken(token, userName, timestamp) ? userName : null;
+            return AuthService.ValidateToken(json.Token, json.HashedClientId) ? GetUserToken(json.Token).UserName : null;
+        }
+
+        public UserModel GetUserToken(string token)
+        {
+            UserModel user = AuthService.GetUserByToken(token);
+            if (user == null)
+                throw new WebFaultException(HttpStatusCode.NoContent);
+            return user;
         }
     }
 }

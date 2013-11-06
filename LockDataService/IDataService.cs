@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Text;
 using LockDataService.Model;
 
 namespace LockDataService
@@ -35,15 +32,15 @@ namespace LockDataService
         [WebInvoke(Method = "POST",
             ResponseFormat = WebMessageFormat.Json,
             RequestFormat = WebMessageFormat.Json,
-            UriTemplate = "registerRequest")]
-        UserModel RegisterRequest(UserModel json);
+            UriTemplate = "confirmRegister")]
+        void ConfirmRegister(UserModel json);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
-            ResponseFormat = WebMessageFormat.Json,
             RequestFormat = WebMessageFormat.Json,
-            UriTemplate = "register")]
-        UserModel Register(UserModel json);
+            ResponseFormat = WebMessageFormat.Json,
+            UriTemplate = "registerRequest")]
+        string RequestRegister(UserModel json);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
@@ -71,9 +68,17 @@ namespace LockDataService
         string GetToken(string userName);
 
         [OperationContract]
+        [WebInvoke(Method = "POST",
+             RequestFormat = WebMessageFormat.Json,
+            ResponseFormat = WebMessageFormat.Json,
+            UriTemplate = "validateToken")]
+        string ValidateToken(UserModel json);
+
+        [OperationContract]
         [WebInvoke(Method = "GET",
             ResponseFormat = WebMessageFormat.Json,
-            UriTemplate = "validateToken/{userName}/{token}/{timestamp}")]
-        string ValidateToken(string userName, string token, string timestamp);
+            UriTemplate = "getUserToken/{token}")]
+        UserModel GetUserToken(string token);
+
     }
 }

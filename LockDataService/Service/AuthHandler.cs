@@ -22,10 +22,10 @@ namespace LockDataService.Service
             Tokens[userName] = token;
 
             // Start Timer
-            //Timer removeTimer = new Timer();
-            //removeTimer.Interval = Timeframe;
-            //removeTimer.Elapsed += (sender, e) => RemoveFromWaitlist(sender, e, userName);
-            //removeTimer.Enabled = true;
+            Timer removeTimer = new Timer();
+            removeTimer.Interval = Timeframe;
+            removeTimer.Elapsed += (sender, e) => RemoveFromWaitlist(sender, e, userName);
+            removeTimer.Enabled = true;
 
         }
 
@@ -39,7 +39,7 @@ namespace LockDataService.Service
             return Tokens[userName];
         }
 
-        public static string GetUser(string token)
+        public static string GetUserName(string token)
         {
             token = token.ToUpper();
             return Tokens.FirstOrDefault(x => x.Value.Equals(token)).Key;

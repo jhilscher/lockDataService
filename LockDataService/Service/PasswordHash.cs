@@ -18,8 +18,8 @@ namespace LockDataService.Service
         public class PasswordHash
         {
             // The following constants may be changed without breaking existing hashes.
-            public const int SALT_BYTE_SIZE = 24;
-            public const int HASH_BYTE_SIZE = 24;
+            public const int SALT_BYTE_SIZE = 64;
+            public const int HASH_BYTE_SIZE = 64;
             public const int PBKDF2_ITERATIONS = 1000;
 
             public const int ITERATION_INDEX = 0;
@@ -95,22 +95,27 @@ namespace LockDataService.Service
                 return pbkdf2.GetBytes(outputBytes);
             }
 
-
+            /// <summary>
+            /// Helper method to convert byte array to string.
+            /// </summary>
+            /// <param name="ba">Byte Array</param>
+            /// <returns>String</returns>
             public static string ByteArrayToString(byte[] ba)
             {
-                StringBuilder hex = new StringBuilder(ba.Length * 2);
-                foreach (byte b in ba)
-                    hex.AppendFormat("{0:x2}", b);
-                return hex.ToString();
+                return BitConverter.ToString(ba).Replace("-", string.Empty);
             }
 
+            /// <summary>
+            /// Helper method to convert string to byte array.
+            /// </summary>
+            /// <param name="hex"></param>
+            /// <returns>byte array</returns>
             public static byte[] StringToByteArray(String hex)
             {
-                int NumberChars = hex.Length;
-                byte[] bytes = new byte[NumberChars / 2];
-                for (int i = 0; i < NumberChars; i += 2)
-                    bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-                return bytes;
+                return Enumerable.Range(0, hex.Length)
+                     .Where(x => x % 2 == 0)
+                     .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                     .ToArray();
             }
         }
     

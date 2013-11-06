@@ -102,6 +102,8 @@
     <Compile Include="Service\AuthHandler.cs" />
     <Compile Include="Service\AuthService.cs" />
     <Compile Include="Service\PasswordHash.cs" />
+    <Compile Include="Service\RegistrationHandler.cs" />
+    <Compile Include="Service\RegistrationService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
