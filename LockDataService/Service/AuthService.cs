@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using LockDataService.Model;
@@ -16,9 +17,10 @@ namespace LockDataService.Service
     /// </summary>
     public class AuthService
     {
-        private static readonly Repository Repository = new Repository();
+        private static readonly IRepository Repository = new Repository();
+        //private static readonly IRepository Repository = new MockRepository();
 
-        private const int RandomByteSize = 256;
+        private const int RandomByteSize = 117;
 
         private const int Iterations = 1000;
 
@@ -62,15 +64,19 @@ namespace LockDataService.Service
 
             // user secret
             string secret = user.Secret;
-            byte[] secretBytes = PasswordHash.StringToByteArray(secret);
+            //byte[] secretBytes = PasswordHash.StringToByteArray(secret);
 
             string tValue = PasswordHash.ByteArrayToString(token);
             
             // take substring
-            tValue = tValue.Substring(0, 64);
+            //tValue = tValue.Substring(0, 64);
 
             // xor to alpha
-            byte[] alpha = Xor(secretBytes, token);
+            //byte[] alpha = Xor(secretBytes, token);
+            // encrypt with rsa and public key
+            byte[] alpha = EncryptString(token, secret);
+
+
 
             // Timestamp
             string timeStamp =  Math.Abs((long)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString();
@@ -91,6 +97,36 @@ namespace LockDataService.Service
             // return alpha + epoch timestamp 
             return PasswordHash.ByteArrayToString(alpha) + "#" + timeStamp;
 
+        }
+
+        private static byte[] EncryptString(byte[] input, string publicKey)
+        {
+
+            //RSACryptoServiceProvider rsaCryptoServiceProvider =
+            //                              new RSACryptoServiceProvider(1024);
+
+            //var x509Certificate = new X509Certificate2(publicKey);
+
+
+            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider(1024);
+            rsaCryptoServiceProvider.FromXmlString(publicKey);
+
+
+            //RSACryptoServiceProvider rsaCryptoServiceProvider = (RSACryptoServiceProvider)x509Certificate.PublicKey.Key;
+
+            //Get an instance of RSAParameters from ExportParameters function.
+            //RSAParameters RSAKeyInfo = rsaCryptoServiceProvider.ExportParameters(true);
+
+            //Set RSAKeyInfo to the public key values. 
+            //RSAKeyInfo.Modulus = publicKey;
+
+
+            //Import key parameters into RSA.
+            //rsaCryptoServiceProvider.ImportParameters(RSAKeyInfo);
+
+            byte[] encrypted = rsaCryptoServiceProvider.Encrypt(input, false);
+
+            return encrypted;
         }
 
         /// <summary>

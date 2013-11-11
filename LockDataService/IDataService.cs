@@ -11,18 +11,6 @@ namespace LockDataService
     public interface IDataService
     {
 
-        [OperationContract]
-        [WebInvoke(Method = "GET",
-            ResponseFormat = WebMessageFormat.Json,
-            UriTemplate = "getall")]
-        List<UserModel> GetAll();
-
-        [OperationContract]
-        [WebInvoke(Method = "POST",
-            ResponseFormat = WebMessageFormat.Json,
-            RequestFormat = WebMessageFormat.Json,
-            UriTemplate = "adduser")]
-        UserModel SendPost(UserModel json);
 
 
         ///
@@ -43,23 +31,10 @@ namespace LockDataService
         string RequestRegister(UserModel json);
 
         [OperationContract]
-        [WebInvoke(Method = "GET",
-            ResponseFormat = WebMessageFormat.Json,
-            UriTemplate = "getuser/{userName}")]
-        UserModel GetUser(string userName);
-
-        [OperationContract]
         [WebInvoke(Method = "POST",
             RequestFormat = WebMessageFormat.Json,
             UriTemplate = "delete")]
         int Delete(string userName);
-
-        [OperationContract]
-        [WebInvoke(Method = "POST",
-            ResponseFormat = WebMessageFormat.Json,
-            RequestFormat = WebMessageFormat.Json,
-            UriTemplate = "update")]
-        int Update(UserModel json);
 
         [OperationContract]
         [WebInvoke(Method = "GET",

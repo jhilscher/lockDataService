@@ -14,7 +14,11 @@ namespace LockDataService.Service
     public class RegistrationService
     {
 
-        private static readonly Repository Repository = new Repository();
+        /// <summary>
+        /// Repository for db-access.
+        /// </summary>
+        private static readonly IRepository Repository = new Repository();
+        //private static readonly IRepository Repository = new MockRepository();
 
         private const int RandomByteSize = 64;
 

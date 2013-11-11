@@ -24,17 +24,7 @@ namespace LockDataService
 
         //private readonly IRepository _repository = new MockRepository();
 
-        public List<UserModel> GetAll()
-        {
-            return _repository.GetAll();
-        }
-
-        public UserModel SendPost(UserModel json)
-        {
-            _repository.CreateUser(json);
-            return json;
-        }
-
+      
         public void ConfirmRegister(UserModel json)
         {
 
@@ -52,14 +42,6 @@ namespace LockDataService
             return resp;
         }
 
-        public UserModel GetUser(string userName)
-        {
-            UserModel user = _repository.GetUserByUserName(userName);
-            if (user == null)
-                throw new WebFaultException(HttpStatusCode.NoContent);
-            return user;
-        }
-
         public int Delete(string userName)
         {
             int code = _repository.DeleteUser(userName);
@@ -68,16 +50,6 @@ namespace LockDataService
             return code;
         }
 
-        /// <summary>
-        /// Set Login attempt.
-        /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        public int Update(UserModel json)
-        {
-            json.DateTimeLogin = DateTime.Now;
-            return _repository.UpdateUser(json);
-        }
 
         public string GetToken(string userName)
         {
