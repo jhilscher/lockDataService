@@ -20,6 +20,9 @@ namespace LockDataService.Service
         private static readonly IRepository Repository = new Repository();
         //private static readonly IRepository Repository = new MockRepository();
 
+        /// <summary>
+        /// Size of the random salt in bytes.
+        /// </summary>
         private const int RandomByteSize = 64;
 
         /// <summary>
@@ -39,9 +42,9 @@ namespace LockDataService.Service
         }
 
         /// <summary>
-        /// Generates a secure random key.
+        /// Generates a secure random key using RNGCryptoServiceProvider.
         /// </summary>
-        /// <returns>The key as string.</returns>
+        /// <returns>The random value as string.</returns>
         private static string generateRandom()
         {
             RNGCryptoServiceProvider csprng = new RNGCryptoServiceProvider();
@@ -54,12 +57,17 @@ namespace LockDataService.Service
         /// <summary>
         /// Confirms the registration and saves it to db.
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="user">UserModel, with ClientId, Secret, UserName</param>
         /// <returns>Boolean if successful.</returns>
         public static bool ConfirmRegistration(UserModel user)
         {
+            // try to get clientId from the RegistrationHandler-Dictonary
             String storedClientId = RegistrationHandler.GetClientId(user.UserName);
 
+            if (storedClientId == null)
+                return false;
+
+            // Check if clientId is equals with the stored one
             if (!storedClientId.Equals(user.HashedClientId))
                 return false;
 

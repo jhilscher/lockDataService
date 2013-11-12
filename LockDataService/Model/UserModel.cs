@@ -9,7 +9,8 @@ using System.Web;
 namespace LockDataService.Model
 {
     /// <summary>
-    /// Model Class
+    /// Model Class.
+    /// Used as container for JSON.
     /// </summary>
     [DataContract]
     public class UserModel

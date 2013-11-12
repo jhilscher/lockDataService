@@ -67,7 +67,7 @@ namespace LockDataService
 
         public string ValidateToken(UserModel json)
         {
-            return AuthService.ValidateToken(json.Token, json.HashedClientId) ? GetUserToken(json.Token).UserName : null;
+            return AuthService.ValidateToken(json.Token, json.HashedClientId);
         }
 
         public UserModel GetUserToken(string token)

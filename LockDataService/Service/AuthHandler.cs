@@ -13,9 +13,15 @@ namespace LockDataService.Service
     /// </summary>
     public class AuthHandler
     {
+        /// <summary>
+        /// Container for tokens to be validated.
+        /// </summary>
         private static readonly Dictionary<string, string> Tokens = new Dictionary<string, string>();
 
-        private const int Timeframe = 1000*60*10; // 2mins
+        /// <summary>
+        /// Time, when the token should be automaticly deleted.
+        /// </summary>
+        private const int Timeframe = 1000*60*2; // 2mins
 
         /// <summary>
         /// Adds a token to the waitlist.
@@ -73,7 +79,12 @@ namespace LockDataService.Service
             token = token.ToUpper();
 
             // searches the key of the token (value).
-            return Tokens.FirstOrDefault(x => x.Value.Equals(token)).Key;
+            var user = Tokens.FirstOrDefault(x => x.Value.Equals(token)).Key;
+
+            if (user != null)
+                Tokens.Remove(user);
+
+            return user;
         }
     }
 }

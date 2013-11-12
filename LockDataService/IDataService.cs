@@ -11,8 +11,6 @@ namespace LockDataService
     public interface IDataService
     {
 
-
-
         ///
         /// Methods
         /// 

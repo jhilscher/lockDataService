@@ -98,8 +98,8 @@ namespace LockDataService.Service
             /// <summary>
             /// Helper method to convert byte array to string.
             /// </summary>
-            /// <param name="ba">Byte Array</param>
-            /// <returns>String</returns>
+            /// <param name="ba">byte array</param>
+            /// <returns>string</returns>
             public static string ByteArrayToString(byte[] ba)
             {
                 return BitConverter.ToString(ba).Replace("-", string.Empty);
@@ -108,7 +108,7 @@ namespace LockDataService.Service
             /// <summary>
             /// Helper method to convert string to byte array.
             /// </summary>
-            /// <param name="hex"></param>
+            /// <param name="hex">hex-string value</param>
             /// <returns>byte array</returns>
             public static byte[] StringToByteArray(String hex)
             {
