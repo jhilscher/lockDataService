@@ -47,6 +47,9 @@ namespace LockDataService.Service
         private static void RemoveFromWaitlist(object sender, ElapsedEventArgs e, string userName)
         {
             Tokens.Remove(userName);
+
+            // disable timer
+            ((Timer) sender).Dispose();
         }
 
         /// <summary>

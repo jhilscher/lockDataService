@@ -111,7 +111,7 @@ namespace LockDataService.Service
         private static byte[] EncryptString(byte[] input, string publicKey)
         {
 
-            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider(1024);
+            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider(2048);
             
             // import key as xml
             rsaCryptoServiceProvider.FromXmlString(publicKey);
