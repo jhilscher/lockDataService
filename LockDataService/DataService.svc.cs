@@ -70,12 +70,22 @@ namespace LockDataService
             return AuthService.ValidateToken(json.Token, json.HashedClientId);
         }
 
-        public UserModel GetUserToken(string token)
+        public UserModel GetUserData(string userName)
         {
-            UserModel user = AuthService.GetUserByToken(token);
+            var user = _repository.GetUserByUserName(userName);
+
             if (user == null)
                 throw new WebFaultException(HttpStatusCode.NoContent);
-            return user;
+
+            // map only relevant data to model
+            var userModel = new UserModel
+                {
+                    UserName = user.UserName,
+                    DateTimeCreated = user.DateTimeCreated,
+                    DateTimeLogin = user.DateTimeLogin
+                };
+
+            return userModel;
         }
     }
 }

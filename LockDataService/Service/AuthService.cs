@@ -163,15 +163,15 @@ namespace LockDataService.Service
         /// </summary>
         /// <param name="token">Token</param>
         /// <returns>UserModel</returns>
-        public static UserModel GetUserByToken(string token)
-        {
-            string username = AuthHandler.GetUserName(token);
+        //public static UserModel GetUserByToken(string token)
+        //{
+        //    string username = AuthHandler.GetUserName(token);
 
-            if (username == null)
-                return null;
+        //    if (username == null)
+        //        return null;
 
-            return Repository.GetUserByUserName(username);
-        }
+        //    return Repository.GetUserByUserName(username);
+        //}
 
         /// <summary>
         /// Helper to convert a string to a byte array.

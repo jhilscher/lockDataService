@@ -50,8 +50,8 @@ namespace LockDataService
         [OperationContract]
         [WebInvoke(Method = "GET",
             ResponseFormat = WebMessageFormat.Json,
-            UriTemplate = "getUserToken/{token}")]
-        UserModel GetUserToken(string token);
+            UriTemplate = "getuserdata/{userName}")]
+        UserModel GetUserData(string userName);
 
     }
 }

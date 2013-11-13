@@ -33,6 +33,7 @@ namespace LockDataService.Model
 
         private DateTime? _dateCreated;
 
+        [DataMember(Name = "loginAttempt")] 
         private DateTime? _lastLogin;
 
         //[DataMember(Name = "created")] 
@@ -41,7 +42,7 @@ namespace LockDataService.Model
             get { return (_dateCreated != null) ? _dateCreated.Value.ToString(CultureInfo.InvariantCulture) : null; }
         }
 
-        //[DataMember(Name = "loginAttempt")] 
+
         public String LastLogin
         {
             get { return (_lastLogin != null) ? _lastLogin.Value.ToString(CultureInfo.InvariantCulture) : null; }

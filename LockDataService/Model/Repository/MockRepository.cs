@@ -7,7 +7,7 @@ using LockDataService.Model.Entity;
 namespace LockDataService.Model.Repository 
 {
     /// <summary>
-    /// Mock Repository with DB-Access.
+    /// Mock Repository without DB-Access.
     /// </summary>
     public class MockRepository : IRepository
     {
