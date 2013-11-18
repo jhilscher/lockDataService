@@ -17,8 +17,8 @@ namespace LockDataService.Service
         /// <summary>
         /// Repository for db-access.
         /// </summary>
-        //private static readonly IRepository Repository = new Repository();
-        private static readonly IRepository Repository = new MockRepository();
+        private static readonly IRepository Repository = new Repository();
+        //private static readonly IRepository Repository = new MockRepository();
 
         /// <summary>
         /// Size of the random salt in bytes.

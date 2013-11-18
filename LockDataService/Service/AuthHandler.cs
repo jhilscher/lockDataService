@@ -20,9 +20,9 @@ namespace LockDataService.Service
         /// <summary>
         /// Repository to access the db.
         /// </summary>
-        //private static readonly IRepository _repository = new Repository();
+        private static readonly IRepository Repository = new Repository();
 
-        private static readonly IRepository _repository = new MockRepository();
+        //private static readonly IRepository Repository = new MockRepository();
 
         /// <summary>
         /// Container for tokens to be validated.
@@ -53,7 +53,7 @@ namespace LockDataService.Service
 
             if (Logins.ContainsKey(userName))
             {
-                _repository.SetLoginSuccess(Logins[userName], false);
+                Repository.SetLoginSuccess(Logins[userName], false);
             }
 
             Logins[userName] = loginLog;
@@ -78,7 +78,7 @@ namespace LockDataService.Service
 
             if (Logins.ContainsKey(userName))
             {
-                _repository.SetLoginSuccess(Logins[userName], false);
+                Repository.SetLoginSuccess(Logins[userName], false);
 
                 Logins.Remove(userName);
             }

@@ -21,9 +21,9 @@ namespace LockDataService
         /// <summary>
         /// Repository to access the db.
         /// </summary>
-        //private readonly IRepository _repository = new Repository();
+        private readonly IRepository _repository = new Repository();
 
-        private readonly IRepository _repository = new MockRepository();
+        //private readonly IRepository _repository = new MockRepository();
 
       
         public void ConfirmRegister(UserModel json)

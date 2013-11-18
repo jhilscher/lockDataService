@@ -18,8 +18,8 @@ namespace LockDataService.Service
     /// </summary>
     public class AuthService
     {
-        //private static readonly IRepository Repository = new Repository();
-        private static readonly IRepository Repository = new MockRepository();
+        private static readonly IRepository Repository = new Repository();
+        //private static readonly IRepository Repository = new MockRepository();
 
         /// <summary>
         /// Size of the token in bytes.
@@ -62,6 +62,7 @@ namespace LockDataService.Service
         public static string GenerateToken(UserModel userModel)
         {
             UserModel user = Repository.GetUserByUserName(userModel.UserName);
+
             if (user == null)
                 throw new ArgumentException("User not found.");
 
@@ -95,8 +96,6 @@ namespace LockDataService.Service
 
             // save login attempt to log
             LoginLog loginLog = Repository.AddLogEntry(userModel);
-
-
 
             // add to waitlist
             AuthHandler.AddToWaitList(user.UserName, hashedValue, loginLog);
@@ -140,7 +139,7 @@ namespace LockDataService.Service
             LoginLog loginLog = AuthHandler.GetLoginLog(userNameFromMap);
             Repository.SetLoginSuccess(loginLog, false);
 
-            if (userNameFromMap == null)
+            if (String.IsNullOrEmpty(userNameFromMap))
                 return String.Empty;
 
             UserModel model = Repository.GetUserByUserName(userNameFromMap);

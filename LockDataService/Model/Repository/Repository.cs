@@ -115,6 +115,11 @@ namespace LockDataService.Model.Repository
             return loginLog;
         }
 
+        /// <summary>
+        /// Gets the logs list.
+        /// </summary>
+        /// <param name="userName">UserName</param>
+        /// <returns>List of Logs</returns>
         public List<LoginLogModel> GetLogsFromUser(string userName)
         {
             var firstOrDefault = Entities.ClientIdentifier.Where(x => x.UserName.Equals(userName)).Include(x => x.LoginLog).FirstOrDefault();
@@ -123,7 +128,6 @@ namespace LockDataService.Model.Repository
 
             return null;
         }
-
 
         /// <summary>
         /// Deletes a user.
