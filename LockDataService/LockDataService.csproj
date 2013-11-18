@@ -77,6 +77,9 @@
     <Compile Include="Model\Entity\ClientIdentifier.cs">
       <DependentUpon>UserModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\Entity\LoginLog.cs">
+      <DependentUpon>UserModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Model\Entity\UserModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -87,6 +90,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UserModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\ListResponse.cs" />
+    <Compile Include="Model\LoginLogModel.cs" />
     <Compile Include="Model\Repository\MockRepository.cs" />
     <Compile Include="Model\Repository\IRepository.cs" />
     <Compile Include="Model\Repository\Repository.cs" />
@@ -133,7 +138,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>62628</DevelopmentServerPort>
+          <DevelopmentServerPort>62630</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

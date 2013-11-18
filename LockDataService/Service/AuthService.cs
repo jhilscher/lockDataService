@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using LockDataService.Model;
+using LockDataService.Model.Entity;
 using LockDataService.Model.Repository;
 
 
@@ -17,8 +18,8 @@ namespace LockDataService.Service
     /// </summary>
     public class AuthService
     {
-        private static readonly IRepository Repository = new Repository();
-        //private static readonly IRepository Repository = new MockRepository();
+        //private static readonly IRepository Repository = new Repository();
+        private static readonly IRepository Repository = new MockRepository();
 
         /// <summary>
         /// Size of the token in bytes.
@@ -56,11 +57,11 @@ namespace LockDataService.Service
         /// <summary>
         /// Generates a one time token.
         /// </summary>
-        /// <param name="userName">UserName</param>
+        /// <param name="userModel">UserModel</param>
         /// <returns>Token as string</returns>
-        public static string GenerateToken(string userName)
+        public static string GenerateToken(UserModel userModel)
         {
-            UserModel user = Repository.GetUserByUserName(userName);
+            UserModel user = Repository.GetUserByUserName(userModel.UserName);
             if (user == null)
                 throw new ArgumentException("User not found.");
 
@@ -78,8 +79,6 @@ namespace LockDataService.Service
             // encrypt
             byte[] alpha = EncryptString(token, secret);
 
-
-
             // Timestamp
             string timeStamp =  Math.Abs((long)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString();
            
@@ -94,8 +93,13 @@ namespace LockDataService.Service
             // convert to string
             string hashedValue = PasswordHash.ByteArrayToString(hashedToken);
 
+            // save login attempt to log
+            LoginLog loginLog = Repository.AddLogEntry(userModel);
+
+
+
             // add to waitlist
-            AuthHandler.AddToWaitList(userName, hashedValue);
+            AuthHandler.AddToWaitList(user.UserName, hashedValue, loginLog);
 
             // return alpha + epoch timestamp 
             return PasswordHash.ByteArrayToString(alpha) + "#" + timeStamp;
@@ -130,8 +134,11 @@ namespace LockDataService.Service
         /// <returns>bool, if token is valid</returns>
         public static string ValidateToken(String token, String clientID)
         {
+
             // gets the old token from the authhandler
             string userNameFromMap = AuthHandler.GetUserName(token);
+            LoginLog loginLog = AuthHandler.GetLoginLog(userNameFromMap);
+            Repository.SetLoginSuccess(loginLog, false);
 
             if (userNameFromMap == null)
                 return String.Empty;
@@ -152,8 +159,9 @@ namespace LockDataService.Service
 
             // updated user with login date
             model.DateTimeLogin = DateTime.Now;
-            Repository.UpdateUser(model);
             
+            //Repository.UpdateUser(model);
+            Repository.SetLoginSuccess(loginLog, true);
 
             return model.UserName;
         }

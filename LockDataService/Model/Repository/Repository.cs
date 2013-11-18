@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity;
 using LockDataService.Model.Entity;
 using System.Linq;
 
@@ -83,6 +84,48 @@ namespace LockDataService.Model.Repository
         }
 
         /// <summary>
+        /// Adds a login attempt to a user's log.
+        /// </summary>
+        /// <param name="userModel">UserModel with new Data.</param>
+        /// <returns>Number of affected rows, should be 1.</returns>
+        public LoginLog AddLogEntry(UserModel userModel)
+        {
+            ClientIdentifier clientIdentifier = Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
+
+            LoginLog loginLog = new LoginLog
+                {
+                    IpAdress = userModel.IpAdress,
+                    TimeStamp = DateTime.Now,
+                    UserAgent = userModel.UserAgent,
+                    Success = 0
+
+                };
+
+
+            if (clientIdentifier != null)
+            {
+                clientIdentifier.LastLogin = DateTime.Now;
+
+                clientIdentifier.LoginLog.Add(loginLog);
+            }
+
+
+            Entities.SaveChanges();
+
+            return loginLog;
+        }
+
+        public List<LoginLogModel> GetLogsFromUser(string userName)
+        {
+            var firstOrDefault = Entities.ClientIdentifier.Where(x => x.UserName.Equals(userName)).Include(x => x.LoginLog).FirstOrDefault();
+            if (firstOrDefault != null && firstOrDefault.LoginLog != null)
+                return firstOrDefault.LoginLog.Select(ConvertToLoginLogModel).ToList();
+
+            return null;
+        }
+
+
+        /// <summary>
         /// Deletes a user.
         /// </summary>
         /// <param name="userName">UserName of the Row.</param>
@@ -93,8 +136,97 @@ namespace LockDataService.Model.Repository
             Entities.ClientIdentifier.Remove(cId);
             return Entities.SaveChanges();
         }
-        
+
+        /// <summary>
+        /// Sets the success of a login log entry.
+        /// </summary>
+        /// <param name="model">LoginLog</param>
+        /// <param name="success">Boolean if successful</param>
+        /// <returns>Number of affected rows. Should be 1.</returns>
+        public int SetLoginSuccess(LoginLog model, bool success)
+        {
+            model.Success = success? 1 : 0;
+            model.TimeStamp = DateTime.Now;
+
+            return Entities.SaveChanges();
+        }
+
+        public double CalculateRisk(string userName, string userAgent, string ipAdress)
+        {
+            double risk = 0.0;
+
+            var firstOrDefault = Entities.ClientIdentifier.Where(x => x.UserName.Equals(userName)).Include(x => x.LoginLog).FirstOrDefault();
+
+            if (firstOrDefault != null && firstOrDefault.LoginLog != null)
+            {
+
+                int total = firstOrDefault.LoginLog.Count();
+                //int hits = firstOrDefault.LoginLog.Count(x => x.IpAdress.Equals(ipAdress));s
+                int closeIpHits = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
+                    .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
+
+                //int closeUAHits = firstOrDefault.LoginLog.Count(x => x.UserAgent.Contains(userAgent));
+
+                if (total == 0)
+                    return 0.0;
+
+                int noHits = total - closeIpHits;
+
+                DateTime latest = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
+                    .OrderByDescending(x => x.TimeStamp).First().TimeStamp.Value;
+
+                var diff = DateTime.Now - latest;
+                int seconds = diff.Seconds;
+                int s = 2*closeIpHits - total;
+
+                double order = Math.Log10(Math.Max(Math.Abs(s), 1));
+                int y = (s > 0) ? 1 : (s < 0) ? -1 : 0;
+
+                var result = order + y*seconds/45000; // 45000 is as fixed value, to set seconds in relation
+
+
+                return result;
+                /*
+                 * http://amix.dk/blog/post/19588
+                 * wilson score interval
+                 * 
+                n = ups + downs
+
+                if n == 0:
+                    return 0
+
+                z = 1.0 #1.0 = 85%, 1.6 = 95%
+                phat = float(ups) / n
+                return sqrt(phat+z*z/(2*n)-z*((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+                */
+
+                double z = 1.0;
+
+                double phat = closeIpHits/total;
+
+                return Math.Sqrt(phat + z*z/(2*total) - z*((phat*(1 - phat) + z*z/(4*total))/total))/(1 + z*z/total);
+
+            }
+
+            return 0.0;
+        }
+
         #region converter
+
+
+        private static LoginLogModel ConvertToLoginLogModel(LoginLog loginLog)
+        {
+            if (loginLog == null)
+                return null;
+
+            return new LoginLogModel
+                {
+                    IpAdress = loginLog.IpAdress.Trim(),
+                    Success = loginLog.Success,
+                    TimeStamp = loginLog.TimeStamp,
+                    UserAgent = loginLog.UserAgent.Trim()
+                };
+        }
 
         /// <summary>
         /// Converter.
@@ -113,7 +245,8 @@ namespace LockDataService.Model.Repository
                     Secret = userModel.Secret,
                     DateCreated = userModel.DateTimeCreated,
                     LastLogin = userModel.DateTimeLogin,
-                    UserName = userModel.UserName
+                    UserName = userModel.UserName,
+                    LoginLog = null
                 };
         }
 

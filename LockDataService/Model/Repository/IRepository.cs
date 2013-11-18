@@ -29,6 +29,12 @@ namespace LockDataService.Model.Repository
 
         int DeleteUser(string userName);
 
+        LoginLog AddLogEntry(UserModel userModel);
 
-   }
+        List<LoginLogModel> GetLogsFromUser(string userName);
+
+        int SetLoginSuccess(LoginLog model, bool success);
+
+        double CalculateRisk(string userName, string userAgent, string ipAdress);
+    }
 }

@@ -36,6 +36,14 @@ namespace LockDataService.Model
         [DataMember(Name = "loginAttempt")] 
         private DateTime? _lastLogin;
 
+        [DataMember(Name = "ipAdress")] 
+        public string IpAdress { get; set; }
+
+        [DataMember(Name = "userAgent")]
+        public string UserAgent { get; set; }
+
+
+
         //[DataMember(Name = "created")] 
         public String DateCreated
         {

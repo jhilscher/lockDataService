@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using System.Web;
+using LockDataService.Model;
+using LockDataService.Model.Entity;
+using LockDataService.Model.Repository;
 
 
 namespace LockDataService.Service
@@ -13,10 +16,23 @@ namespace LockDataService.Service
     /// </summary>
     public class AuthHandler
     {
+
+        /// <summary>
+        /// Repository to access the db.
+        /// </summary>
+        //private static readonly IRepository _repository = new Repository();
+
+        private static readonly IRepository _repository = new MockRepository();
+
         /// <summary>
         /// Container for tokens to be validated.
         /// </summary>
         private static readonly Dictionary<string, string> Tokens = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Container for login log data.
+        /// </summary>
+        private static readonly Dictionary<string, LoginLog> Logins = new Dictionary<string, LoginLog>();
 
         /// <summary>
         /// Time, when the token should be automaticly deleted.
@@ -28,12 +44,19 @@ namespace LockDataService.Service
         /// </summary>
         /// <param name="userName"></param>
         /// <param name="token"></param>
-        public static void AddToWaitList(string userName, string token)
+        public static void AddToWaitList(string userName, string token, LoginLog loginLog)
         {
             token = token.ToUpper();
 
             // will override old tokens
             Tokens[userName] = token;
+
+            if (Logins.ContainsKey(userName))
+            {
+                _repository.SetLoginSuccess(Logins[userName], false);
+            }
+
+            Logins[userName] = loginLog;
 
             // Start Timer
             Timer removeTimer = new Timer();
@@ -53,6 +76,13 @@ namespace LockDataService.Service
         {
             Tokens.Remove(userName);
 
+            if (Logins.ContainsKey(userName))
+            {
+                _repository.SetLoginSuccess(Logins[userName], false);
+
+                Logins.Remove(userName);
+            }
+
             // disable timer
             ((Timer)sender).Dispose();
         }
@@ -70,6 +100,21 @@ namespace LockDataService.Service
             Tokens.Remove(userName);
 
             return token;
+        }
+
+        /// <summary>
+        /// Gets a Login Log and removes it from the map.
+        /// </summary>
+        /// <param name="userName">UserName</param>
+        /// <returns>LoginInLog</returns>
+        public static LoginLog GetLoginLog(string userName)
+        {
+            var login = Logins[userName];
+
+            // remove the login.
+            Logins.Remove(userName);
+
+            return login;
         }
 
         /// <summary>

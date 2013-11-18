@@ -26,5 +26,6 @@ namespace LockDataService.Model.Entity
         }
     
         public DbSet<ClientIdentifier> ClientIdentifier { get; set; }
+        public DbSet<LoginLog> LoginLog { get; set; }
     }
 }

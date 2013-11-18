@@ -14,6 +14,11 @@ namespace LockDataService.Model.Entity
     
     public partial class ClientIdentifier
     {
+        public ClientIdentifier()
+        {
+            this.LoginLog = new HashSet<LoginLog>();
+        }
+    
         public int Id { get; set; }
         public string HashedClientId { get; set; }
         public string Salt { get; set; }
@@ -21,5 +26,7 @@ namespace LockDataService.Model.Entity
         public string UserName { get; set; }
         public Nullable<System.DateTime> DateCreated { get; set; }
         public Nullable<System.DateTime> LastLogin { get; set; }
+    
+        public virtual ICollection<LoginLog> LoginLog { get; set; }
     }
 }

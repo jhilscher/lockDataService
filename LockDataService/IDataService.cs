@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using LockDataService.Model;
@@ -35,10 +34,11 @@ namespace LockDataService
         int Delete(string userName);
 
         [OperationContract]
-        [WebInvoke(Method = "GET",
+        [WebInvoke(Method = "POST",
             ResponseFormat = WebMessageFormat.Json,
-            UriTemplate = "getToken/{userName}")]
-        string GetToken(string userName);
+            RequestFormat = WebMessageFormat.Json,
+            UriTemplate = "loginRequest")]
+        string GetToken(UserModel userName);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
@@ -52,6 +52,20 @@ namespace LockDataService
             ResponseFormat = WebMessageFormat.Json,
             UriTemplate = "getuserdata/{userName}")]
         UserModel GetUserData(string userName);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            UriTemplate = "getlogsfromuser/{userName}")]
+        List<LoginLogModel> GetLogsFromUser(string userName);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            UriTemplate = "risklevel")]
+        double GetCurrentRisk(UserModel user);
 
     }
 }

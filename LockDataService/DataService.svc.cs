@@ -8,6 +8,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using LockDataService.Model;
+using LockDataService.Model.Entity;
 using LockDataService.Model.Repository;
 using LockDataService.Service;
 
@@ -20,9 +21,9 @@ namespace LockDataService
         /// <summary>
         /// Repository to access the db.
         /// </summary>
-        private readonly IRepository _repository = new Repository();
+        //private readonly IRepository _repository = new Repository();
 
-        //private readonly IRepository _repository = new MockRepository();
+        private readonly IRepository _repository = new MockRepository();
 
       
         public void ConfirmRegister(UserModel json)
@@ -50,13 +51,12 @@ namespace LockDataService
             return code;
         }
 
-
-        public string GetToken(string userName)
+        public string GetToken(UserModel user)
         {
             string token;
             try
             {
-                token = AuthService.GenerateToken(userName);
+                token = AuthService.GenerateToken(user);
             }
             catch (ArgumentException e)
             {
@@ -75,7 +75,7 @@ namespace LockDataService
             var user = _repository.GetUserByUserName(userName);
 
             if (user == null)
-                throw new WebFaultException(HttpStatusCode.NoContent);
+                return null;
 
             // map only relevant data to model
             var userModel = new UserModel
@@ -86,6 +86,17 @@ namespace LockDataService
                 };
 
             return userModel;
+        }
+
+        public List<LoginLogModel> GetLogsFromUser(string userName)
+        {
+            var list = _repository.GetLogsFromUser(userName);
+            return list;
+        }
+
+        public double GetCurrentRisk(UserModel user)
+        {
+            return _repository.CalculateRisk(user.UserName, user.UserAgent, user.IpAdress);
         }
     }
 }
