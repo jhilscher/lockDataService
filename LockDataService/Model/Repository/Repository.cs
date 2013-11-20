@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity;
 using LockDataService.Model.Entity;
@@ -7,9 +8,14 @@ using System.Linq;
 
 namespace LockDataService.Model.Repository 
 {
+    /// <summary>
+    /// Respository Class to handle db-access.
+    /// </summary>
     public class Repository : IRepository
     {
-        
+        /// <summary>
+        /// DB Entities.
+        /// </summary>
         public static SSO_UserEntities Entities = new SSO_UserEntities();
 
         /// <summary>
@@ -106,6 +112,9 @@ namespace LockDataService.Model.Repository
             {
                 clientIdentifier.LastLogin = DateTime.Now;
 
+                if (clientIdentifier.LoginLog == null)
+                           clientIdentifier.LoginLog = new Collection<LoginLog>();
+
                 clientIdentifier.LoginLog.Add(loginLog);
             }
 
@@ -136,7 +145,16 @@ namespace LockDataService.Model.Repository
         /// <returns>Number of affected rows.</returns>
         public int DeleteUser(string userName)
         {
+            
             ClientIdentifier cId = Entities.ClientIdentifier.FirstOrDefault(x => x.UserName.Equals(userName));
+
+            // removes related logs
+            foreach (var log in Entities.LoginLog.Where(l => l.UserId == cId.Id))
+            {
+                Entities.LoginLog.Remove(log);
+            }
+            
+            
             Entities.ClientIdentifier.Remove(cId);
             return Entities.SaveChanges();
         }
@@ -155,10 +173,17 @@ namespace LockDataService.Model.Repository
             return Entities.SaveChanges();
         }
 
+        /// <summary>
+        /// Calaculates a risk-ranking for a request
+        /// </summary>
+        /// <param name="userName">UserName</param>
+        /// <param name="userAgent">UserAgent</param>
+        /// <param name="ipAdress">IpAdress</param>
+        /// <returns>Double value of the risk-ranking, > 0 should be considered secure.</returns>
         public double CalculateRisk(string userName, string userAgent, string ipAdress)
         {
-            double risk = 0.0;
-
+            //double risk = 0.0;
+            
             var firstOrDefault = Entities.ClientIdentifier.Where(x => x.UserName.Equals(userName)).Include(x => x.LoginLog).FirstOrDefault();
 
             if (firstOrDefault != null && firstOrDefault.LoginLog != null)
@@ -166,50 +191,33 @@ namespace LockDataService.Model.Repository
 
                 int total = firstOrDefault.LoginLog.Count();
                 //int hits = firstOrDefault.LoginLog.Count(x => x.IpAdress.Equals(ipAdress));s
+
+                // take successfull logins coming from the same ip range (last adress block is ignored)
                 int closeIpHits = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
                     .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
-                //int closeUAHits = firstOrDefault.LoginLog.Count(x => x.UserAgent.Contains(userAgent));
+                int closeIpFails = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 0)
+                    .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
-                if (total == 0)
-                    return 0.0;
+                if (total == 0 || closeIpHits == 0)
+                    return 0.0; // first login
 
-                int noHits = total - closeIpHits;
+                int s = closeIpHits - closeIpFails;
 
                 DateTime latest = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
                     .OrderByDescending(x => x.TimeStamp).First().TimeStamp.Value;
 
                 var diff = DateTime.Now - latest;
-                int seconds = diff.Seconds;
-                int s = 2*closeIpHits - total;
+                int hours = diff.Hours;
+
 
                 double order = Math.Log10(Math.Max(Math.Abs(s), 1));
                 int y = (s > 0) ? 1 : (s < 0) ? -1 : 0;
 
-                var result = order + y*seconds/45000; // 45000 is as fixed value, to set seconds in relation
+                var result = y*order - hours/48; // 48 is as fixed value, to set hours in relation
 
 
                 return result;
-                /*
-                 * http://amix.dk/blog/post/19588
-                 * wilson score interval
-                 * 
-                n = ups + downs
-
-                if n == 0:
-                    return 0
-
-                z = 1.0 #1.0 = 85%, 1.6 = 95%
-                phat = float(ups) / n
-                return sqrt(phat+z*z/(2*n)-z*((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
-                */
-
-                double z = 1.0;
-
-                double phat = closeIpHits/total;
-
-                return Math.Sqrt(phat + z*z/(2*total) - z*((phat*(1 - phat) + z*z/(4*total))/total))/(1 + z*z/total);
-
             }
 
             return 0.0;
@@ -217,7 +225,11 @@ namespace LockDataService.Model.Repository
 
         #region converter
 
-
+        /// <summary>
+        /// Converter.
+        /// </summary>
+        /// <param name="loginLog"></param>
+        /// <returns>LoginLogModel</returns>
         private static LoginLogModel ConvertToLoginLogModel(LoginLog loginLog)
         {
             if (loginLog == null)
