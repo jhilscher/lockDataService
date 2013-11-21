@@ -20,6 +20,7 @@ namespace LockDataService.Model.Repository
 
         UserModel GetUserByUserName(string userName);
 
+        UserModel GetUserByClientId(string clientId);
 
         List<UserModel> GetAll();
 

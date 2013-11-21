@@ -93,7 +93,7 @@ namespace LockDataService.Model.Repository
             if (clientIdentifier != null)
             {
                 clientIdentifier.LastLogin = DateTime.Now;
-                clientIdentifier.HashedClientId = userModel.HashedClientId;
+                clientIdentifier.ClientId = userModel.ClientId;
                 clientIdentifier.Salt = userModel.Salt;
                 clientIdentifier.Secret = userModel.Secret;
             }
@@ -255,7 +255,7 @@ namespace LockDataService.Model.Repository
 
             return new ClientIdentifier
             {
-                HashedClientId = userModel.HashedClientId,
+                ClientId = userModel.ClientId,
                 Salt = userModel.Salt,
                 Secret = userModel.Secret,
                 DateCreated = userModel.DateTimeCreated,
@@ -277,7 +277,7 @@ namespace LockDataService.Model.Repository
 
             return new UserModel
             {
-                HashedClientId = clientIdentifier.HashedClientId.Trim(),
+                ClientId = clientIdentifier.ClientId.Trim(),
                 Salt = clientIdentifier.Salt.Trim(),
                 Secret = clientIdentifier.Secret.Trim(),
                 DateTimeCreated = clientIdentifier.DateCreated,
@@ -287,5 +287,11 @@ namespace LockDataService.Model.Repository
         }
 
         #endregion
+
+
+        public UserModel GetUserByClientId(string clientId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

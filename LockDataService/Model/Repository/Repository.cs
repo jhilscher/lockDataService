@@ -60,6 +60,18 @@ namespace LockDataService.Model.Repository
         }
 
         /// <summary>
+        /// Gets a user by it's clientId.
+        /// </summary>
+        /// <param name="clientId">string clientId</param>
+        /// <returns>UserModel</returns>
+        public UserModel GetUserByClientId(string clientId)
+        {
+            UserModel userModel = ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.ClientId == clientId));
+
+            return userModel;
+        }
+
+        /// <summary>
         /// Returns all UserModels.
         /// </summary>
         /// <returns>List of UserModels or null if none found.</returns>
@@ -80,7 +92,7 @@ namespace LockDataService.Model.Repository
             if (clientIdentifier != null)
             {
                 clientIdentifier.LastLogin = DateTime.Now;
-                clientIdentifier.HashedClientId = userModel.HashedClientId;
+                clientIdentifier.ClientId = userModel.ClientId;
                 clientIdentifier.Salt = userModel.Salt;
                 clientIdentifier.Secret = userModel.Secret;
             }
@@ -256,7 +268,7 @@ namespace LockDataService.Model.Repository
 
             return new ClientIdentifier
                 {
-                    HashedClientId = userModel.HashedClientId,
+                    ClientId = userModel.ClientId,
                     Salt = userModel.Salt,
                     Secret = userModel.Secret,
                     DateCreated = userModel.DateTimeCreated,
@@ -278,8 +290,8 @@ namespace LockDataService.Model.Repository
 
             return new UserModel
             {
-                HashedClientId = clientIdentifier.HashedClientId.Trim(),
-                Salt = clientIdentifier.Salt.Trim(),
+                ClientId = clientIdentifier.ClientId.Trim(),
+                //Salt = clientIdentifier.Salt.Trim(),
                 Secret = clientIdentifier.Secret.Trim(),
                 DateTimeCreated = clientIdentifier.DateCreated,
                 DateTimeLogin = clientIdentifier.LastLogin,

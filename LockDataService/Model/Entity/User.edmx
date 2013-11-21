@@ -18,7 +18,7 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="HashedClientId" Type="nchar" MaxLength="256" />
+          <Property Name="ClientId" Type="nchar" MaxLength="256" />
           <Property Name="Salt" Type="nchar" MaxLength="256" />
           <Property Name="Secret" Type="nchar" MaxLength="512" />
           <Property Name="UserName" Type="nchar" Nullable="false" MaxLength="256" />
@@ -30,14 +30,16 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="UserId" Type="int" />
           <Property Name="Success" Type="int" />
           <Property Name="IpAdress" Type="nchar" MaxLength="64" />
-          <Property Name="UserAgent" Type="nchar" MaxLength="64" />
+          <Property Name="UserAgent" Type="nchar" MaxLength="256" />
           <Property Name="TimeStamp" Type="date" />
         </EntityType>
         <Association Name="FK_LoginLog_ClientIdentifier">
-          <End Role="ClientIdentifier" Type="SSO_UserModel.Store.ClientIdentifier" Multiplicity="1" />
+          <End Role="ClientIdentifier" Type="SSO_UserModel.Store.ClientIdentifier" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="LoginLog" Type="SSO_UserModel.Store.LoginLog" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="ClientIdentifier">
@@ -65,13 +67,13 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="String" Name="HashedClientId" MaxLength="256" FixedLength="true" Unicode="true" />
           <Property Type="String" Name="Salt" MaxLength="256" FixedLength="true" Unicode="true" />
           <Property Type="String" Name="Secret" MaxLength="512" FixedLength="true" Unicode="true" />
           <Property Type="String" Name="UserName" Nullable="false" MaxLength="256" FixedLength="true" Unicode="true" />
           <Property Type="DateTime" Name="DateCreated" />
           <Property Type="DateTime" Name="LastLogin" />
           <NavigationProperty Name="LoginLog" Relationship="SSO_UserModel.FK_LoginLog_ClientIdentifier" FromRole="ClientIdentifier" ToRole="LoginLog" />
+          <Property Type="String" Name="ClientId" MaxLength="256" FixedLength="true" Unicode="true" />
         </EntityType>
         <EntityType Name="LoginLog">
           <Key>
@@ -106,12 +108,12 @@
           <EntitySetMapping Name="ClientIdentifier">
             <EntityTypeMapping TypeName="SSO_UserModel.ClientIdentifier">
               <MappingFragment StoreEntitySet="ClientIdentifier">
+                <ScalarProperty Name="ClientId" ColumnName="ClientId" />
                 <ScalarProperty Name="LastLogin" ColumnName="LastLogin" />
                 <ScalarProperty Name="DateCreated" ColumnName="DateCreated" />
                 <ScalarProperty Name="UserName" ColumnName="UserName" />
                 <ScalarProperty Name="Secret" ColumnName="Secret" />
                 <ScalarProperty Name="Salt" ColumnName="Salt" />
-                <ScalarProperty Name="HashedClientId" ColumnName="HashedClientId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -150,7 +152,7 @@
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
       <Diagram Name="User" >
-        <EntityTypeShape EntityType="SSO_UserModel.ClientIdentifier" Width="1.5" PointX="0.75" PointY="0.75" Height="2.3648893229166665" />
+        <EntityTypeShape EntityType="SSO_UserModel.ClientIdentifier" Width="1.5" PointX="0.75" PointY="0.75" Height="2.5571907552083331" />
         <EntityTypeShape EntityType="SSO_UserModel.LoginLog" Width="1.5" PointX="3" PointY="0.875" Height="2.3648893229166674" />
         <AssociationConnector Association="SSO_UserModel.FK_LoginLog_ClientIdentifier" >
           <ConnectorPoint PointX="2.25" PointY="2.0574446614583337" />

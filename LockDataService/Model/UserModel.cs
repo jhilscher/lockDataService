@@ -19,8 +19,8 @@ namespace LockDataService.Model
         [DataMember(Name = "userName")]
         public string UserName { get; set; }
 
-        [DataMember(Name = "hashedClientId")]
-        public string HashedClientId { get; set; }
+        [DataMember(Name = "clientId")]
+        public string ClientId { get; set; }
 
         [DataMember(Name = "salt")]
         public string Salt { get; set; }

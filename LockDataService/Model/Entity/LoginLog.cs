@@ -7,30 +7,20 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System.Runtime.Serialization;
-using System;
-using System.Collections.Generic;
-
-
-
 namespace LockDataService.Model.Entity
 {
-
-
+    using System;
+    using System.Collections.Generic;
+    
     public partial class LoginLog
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-
         public Nullable<int> Success { get; set; }
-
         public string IpAdress { get; set; }
-
         public string UserAgent { get; set; }
-
         public Nullable<System.DateTime> TimeStamp { get; set; }
     
         public virtual ClientIdentifier ClientIdentifier { get; set; }
-
     }
 }

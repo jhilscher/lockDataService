@@ -28,15 +28,15 @@ namespace LockDataService.Service
         /// <summary>
         /// Request to register a client.
         /// </summary>
-        /// <param name="sId">id of</param>
-        /// <returns></returns>
-        public static string RegisterRequest(string sId)
+        /// <param name="userName">UserName</param>
+        /// <returns>ClientIdKey</returns>
+        public static string RegisterRequest(string userName)
         {
             // generate random value
             string clientIdKey = generateRandom();
             
             // add the value to the waitlist
-            RegistrationHandler.AddToWaitList(sId, clientIdKey);
+            RegistrationHandler.AddToWaitList(userName, clientIdKey);
 
             return clientIdKey;
         }
@@ -68,22 +68,12 @@ namespace LockDataService.Service
                 return false;
 
             // Check if clientId is equals with the stored one
-            if (!storedClientId.Equals(user.HashedClientId))
+            if (!storedClientId.Equals(user.ClientId))
                 return false;
-
-            // generate salt
-            string salt = generateRandom();
-
-            // hash the cient id
-            byte[] hashedClientIdKeyBytes = PasswordHash.PBKDF2(storedClientId, PasswordHash.StringToByteArray(salt), 1000, 64);
-            
-            // convert it to string
-            string hashedClientIdKey = PasswordHash.ByteArrayToString(hashedClientIdKeyBytes);
 
             Repository.CreateUser(new UserModel
                 {
-                    HashedClientId = hashedClientIdKey,
-                    Salt = salt,
+                    ClientId = storedClientId,
                     Secret = user.Secret,
                     UserName = user.UserName
                 });

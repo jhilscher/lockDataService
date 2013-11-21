@@ -36,23 +36,27 @@ namespace LockDataService.Service
         /// </summary>
         private const int HashByteSize = 64;
 
-
+        /// <summary>
+        /// Length of the RSA-Key.
+        /// </summary>
+        private const int KeyLength = 2048;
+        
         /// <summary>
         /// XORs to byte arrays
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns>XORed byte array</returns>
-        public static byte[] Xor(byte[] a, byte[] b)
-        {
-            int nLen = Math.Min(a.Length, b.Length);
-            byte[] c = new byte[nLen];
+        //public static byte[] Xor(byte[] a, byte[] b)
+        //{
+        //    int nLen = Math.Min(a.Length, b.Length);
+        //    byte[] c = new byte[nLen];
 
-            for (int i = 0; i < nLen; i++)
-                c[i] = (byte) (a[i] ^ b[i]);
+        //    for (int i = 0; i < nLen; i++)
+        //        c[i] = (byte) (a[i] ^ b[i]);
 
-            return c;
-        }
+        //    return c;
+        //}
 
         /// <summary>
         /// Generates a one time token.
@@ -92,13 +96,13 @@ namespace LockDataService.Service
                                                      Iterations, HashByteSize);
 
             // convert to string
-            string hashedValue = PasswordHash.ByteArrayToString(hashedToken);
+            string hashedTokenString = PasswordHash.ByteArrayToString(hashedToken);
 
             // save login attempt to log
             LoginLog loginLog = Repository.AddLogEntry(userModel);
 
             // add to waitlist
-            AuthHandler.AddToWaitList(user.UserName, hashedValue, loginLog);
+            AuthHandler.AddToWaitList(user.ClientId, hashedTokenString, loginLog);
 
             // return alpha + epoch timestamp 
             return PasswordHash.ByteArrayToString(alpha) + "#" + timeStamp;
@@ -114,7 +118,7 @@ namespace LockDataService.Service
         private static byte[] EncryptString(byte[] input, string publicKey)
         {
 
-            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider(2048);
+            RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider(KeyLength);
             
             // import key as xml
             rsaCryptoServiceProvider.FromXmlString(publicKey);
@@ -134,51 +138,33 @@ namespace LockDataService.Service
         public static string ValidateToken(String token, String clientID)
         {
 
-            // gets the old token from the authhandler
-            string userNameFromMap = AuthHandler.GetUserName(token);
-            LoginLog loginLog = AuthHandler.GetLoginLog(userNameFromMap);
-            Repository.SetLoginSuccess(loginLog, false);
-
-            if (String.IsNullOrEmpty(userNameFromMap))
+            if (String.IsNullOrEmpty(clientID) || String.IsNullOrEmpty(token))
                 return String.Empty;
 
-            UserModel model = Repository.GetUserByUserName(userNameFromMap);
+            // gets the old token from the waitlist
+            string tokenFromWaitlist = AuthHandler.GetToken(clientID);
+
+            LoginLog loginLog = AuthHandler.GetLoginLog(clientID);
+            
+            Repository.SetLoginSuccess(loginLog, false);
+
+            token = token.ToUpper();
+
+            // check token
+            if (!token.Equals(tokenFromWaitlist))
+                return String.Empty;
+
+            UserModel model = Repository.GetUserByClientId(clientID);
 
             if (model == null)
                 return String.Empty;
-
-            //generate Hash of ClientId
-            byte[] hashedClientId = PasswordHash.PBKDF2(clientID, PasswordHash.StringToByteArray(model.Salt), Iterations, HashByteSize);
-            string hashedClientIdString = PasswordHash.ByteArrayToString(hashedClientId);
-
-
-            if (!model.HashedClientId.Equals(hashedClientIdString))
-                return String.Empty;
             
-
-            // updated user with login date
-            model.DateTimeLogin = DateTime.Now;
-            
-            //Repository.UpdateUser(model);
+            // Set log to success: true
             Repository.SetLoginSuccess(loginLog, true);
+            AuthHandler.RemoveToken(clientID);
 
             return model.UserName;
         }
-
-        /// <summary>
-        /// Gets a User in the waitlist by it's token.
-        /// </summary>
-        /// <param name="token">Token</param>
-        /// <returns>UserModel</returns>
-        //public static UserModel GetUserByToken(string token)
-        //{
-        //    string username = AuthHandler.GetUserName(token);
-
-        //    if (username == null)
-        //        return null;
-
-        //    return Repository.GetUserByUserName(username);
-        //}
 
         /// <summary>
         /// Helper to convert a string to a byte array.
@@ -188,8 +174,8 @@ namespace LockDataService.Service
         private static byte[] GetBytes(string str)
         {
             byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return System.Text.Encoding.UTF8.GetBytes(str); 
+            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return Encoding.UTF8.GetBytes(str); 
         }
     }
 }

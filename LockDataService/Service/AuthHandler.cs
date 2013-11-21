@@ -27,12 +27,7 @@ namespace LockDataService.Service
         /// <summary>
         /// Container for tokens to be validated.
         /// </summary>
-        private static readonly Dictionary<string, string> Tokens = new Dictionary<string, string>();
-
-        /// <summary>
-        /// Container for login log data.
-        /// </summary>
-        private static readonly Dictionary<string, LoginLog> Logins = new Dictionary<string, LoginLog>();
+        private static readonly Dictionary<string, WaitlistItem> Items = new Dictionary<string, WaitlistItem>();
 
         /// <summary>
         /// Time, when the token should be automaticly deleted.
@@ -42,45 +37,53 @@ namespace LockDataService.Service
         /// <summary>
         /// Adds a token to the waitlist.
         /// </summary>
-        /// <param name="userName"></param>
-        /// <param name="token"></param>
-        public static void AddToWaitList(string userName, string token, LoginLog loginLog)
+        /// <param name="clientId">clientId: ID_A</param>
+        /// <param name="token">hashed token</param>
+        /// <param name="loginLog">Log-Object</param>
+        public static void AddToWaitList(string clientId, string token, LoginLog loginLog)
         {
+
+            if (String.IsNullOrEmpty(clientId) || String.IsNullOrEmpty(token) || loginLog == null)
+                throw new ArgumentException("No null values or empty strings allowed.");
+
             token = token.ToUpper();
 
-            // will override old tokens
-            Tokens[userName] = token;
-
-            if (Logins.ContainsKey(userName))
+            // sets overridden log to success: false.
+            if (Items.ContainsKey(clientId))
             {
-                Repository.SetLoginSuccess(Logins[userName], false);
+                Repository.SetLoginSuccess(Items[clientId].LoginLog, false);
             }
 
-            Logins[userName] = loginLog;
+            // will override old entry
+            Items[clientId] = new WaitlistItem
+                {
+                    HashedToken = token,
+                    LoginLog = loginLog
+                };
 
             // Start Timer
             Timer removeTimer = new Timer();
             removeTimer.Interval = Timeframe;
-            removeTimer.Elapsed += (sender, e) => RemoveFromWaitlist(sender, e, userName);
+            removeTimer.Elapsed += (sender, e) => RemoveFromWaitlist(sender, e, clientId);
             removeTimer.Enabled = true;
 
         }
 
         /// <summary>
-        /// Method triggered after time, to remove the token.
+        /// Removes Waitlist-entries by username.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="userName"></param>
-        private static void RemoveFromWaitlist(object sender, ElapsedEventArgs e, string userName)
+        /// <param name="sender">sender-Object</param>
+        /// <param name="e">EventArgs</param>
+        /// <param name="clientId">ClientID</param>
+        private static void RemoveFromWaitlist(object sender, ElapsedEventArgs e, string clientId)
         {
-            Tokens.Remove(userName);
 
-            if (Logins.ContainsKey(userName))
+            if (Items.ContainsKey(clientId))
             {
-                Repository.SetLoginSuccess(Logins[userName], false);
+                // if in waitlist, set log success to false and remove entry
+                Repository.SetLoginSuccess(Items[clientId].LoginLog, false);
 
-                Logins.Remove(userName);
+                Items.Remove(clientId);
             }
 
             // disable timer
@@ -90,29 +93,38 @@ namespace LockDataService.Service
         /// <summary>
         /// Gets a token and removes it from the map.
         /// </summary>
-        /// <param name="userName">UserName</param>
+        /// <param name="clientId">cliendId: ID_A</param>
         /// <returns>Token</returns>
-        public static string GetToken(string userName)
+        public static string GetToken(string clientId)
         {
-            string token = Tokens[userName];
+            if (!Items.ContainsKey(clientId))
+                return null;
+
+            string token = Items[clientId].HashedToken;
             
             // remove the token.
-            Tokens.Remove(userName);
+            //Items.Remove(clientId);
 
             return token;
+        }
+
+        public static void RemoveToken(string clientId)
+        {
+            if (Items.ContainsKey(clientId))
+                Items.Remove(clientId);
         }
 
         /// <summary>
         /// Gets a Login Log and removes it from the map.
         /// </summary>
-        /// <param name="userName">UserName</param>
+        /// <param name="clientID">UserName</param>
         /// <returns>LoginInLog</returns>
-        public static LoginLog GetLoginLog(string userName)
+        public static LoginLog GetLoginLog(string clientID)
         {
-            var login = Logins[userName];
+            var login = Items[clientID].LoginLog;
 
             // remove the login.
-            Logins.Remove(userName);
+            //Items.Remove(clientID);
 
             return login;
         }
@@ -127,10 +139,10 @@ namespace LockDataService.Service
             token = token.ToUpper();
 
             // searches the key of the token (value).
-            var user = Tokens.FirstOrDefault(x => x.Value.Equals(token)).Key;
+            var user = Items.FirstOrDefault(x => x.Value.HashedToken.Equals(token)).Key;
 
             if (user != null)
-                Tokens.Remove(user);
+                Items.Remove(user);
 
             return user;
         }
