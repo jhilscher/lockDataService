@@ -41,22 +41,6 @@ namespace LockDataService.Service
         /// </summary>
         private const int KeyLength = 2048;
         
-        /// <summary>
-        /// XORs to byte arrays
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns>XORed byte array</returns>
-        //public static byte[] Xor(byte[] a, byte[] b)
-        //{
-        //    int nLen = Math.Min(a.Length, b.Length);
-        //    byte[] c = new byte[nLen];
-
-        //    for (int i = 0; i < nLen; i++)
-        //        c[i] = (byte) (a[i] ^ b[i]);
-
-        //    return c;
-        //}
 
         /// <summary>
         /// Generates a one time token.
@@ -70,28 +54,48 @@ namespace LockDataService.Service
             if (user == null)
                 throw new ArgumentException("User not found.");
 
+            if (user.Status != 1)
+                throw new AccessViolationException();
+
+            if(!Repository.CalculateCurrentRisk(userModel.UserName, userModel.UserAgent, userModel.IpAdress))
+                throw new AccessViolationException();
+
+
             RNGCryptoServiceProvider random = new RNGCryptoServiceProvider();
 
             // random bytes
             byte[] token = new byte[RandomByteSize];
             random.GetBytes(token);
 
+            string tokenString = PasswordHash.ByteArrayToString(token);   
+
             // user secret
             string secret = user.Secret;
 
-            string tValue = PasswordHash.ByteArrayToString(token);
-            
-            // encrypt
-            byte[] alpha = EncryptString(token, secret);
+                 
 
             // Timestamp
-            string timeStamp =  Math.Abs((long)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString();
+            string timeStamp =  Math.Abs((long)DateTime.Now.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime()).TotalMilliseconds).ToString();
            
             // convert to byte array
-            byte[] timeBytes = GetBytes(timeStamp);
+            byte[] timeBytes = PasswordHash.StringToByteArray(BitConverter.ToString(GetBytes(timeStamp)).Replace("-", "")); 
+
+
+            byte[] combinedArray = new byte[token.Length + timeBytes.Length];
+
+            for (int i = 0; i < combinedArray.Length; i++)
+            {
+                combinedArray[i] = i < token.Length ? token[i] : timeBytes[i - token.Length];
+            }
+
+            var hexTime = BitConverter.ToString(GetBytes(timeStamp)).Replace("-", "");
+            var desc = tokenString + hexTime;
+
+            // encrypt
+            byte[] alpha = EncryptString(combinedArray, secret);
 
             // hashed token
-            byte[] hashedToken = PasswordHash.PBKDF2(tValue.ToUpper(),
+            byte[] hashedToken = PasswordHash.PBKDF2(tokenString.ToUpper(),
                                                      timeBytes,
                                                      Iterations, HashByteSize);
 
@@ -104,8 +108,10 @@ namespace LockDataService.Service
             // add to waitlist
             AuthHandler.AddToWaitList(user.ClientId, hashedTokenString, loginLog);
 
+
+            string result = PasswordHash.ByteArrayToString(alpha);
             // return alpha + epoch timestamp 
-            return PasswordHash.ByteArrayToString(alpha) + "#" + timeStamp;
+            return result;
 
         }
 
@@ -145,7 +151,10 @@ namespace LockDataService.Service
             string tokenFromWaitlist = AuthHandler.GetToken(clientID);
 
             LoginLog loginLog = AuthHandler.GetLoginLog(clientID);
-            
+
+            if (loginLog == null || String.IsNullOrEmpty(tokenFromWaitlist))
+                return String.Empty;
+
             Repository.SetLoginSuccess(loginLog, false);
 
             token = token.ToUpper();

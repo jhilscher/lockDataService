@@ -38,15 +38,15 @@ namespace LockDataService.Service
         /// Adds a token to the waitlist.
         /// </summary>
         /// <param name="clientId">clientId: ID_A</param>
-        /// <param name="token">hashed token</param>
+        /// <param name="hashedToken">hashed token</param>
         /// <param name="loginLog">Log-Object</param>
-        public static void AddToWaitList(string clientId, string token, LoginLog loginLog)
+        public static void AddToWaitList(string clientId, string hashedToken, LoginLog loginLog)
         {
 
-            if (String.IsNullOrEmpty(clientId) || String.IsNullOrEmpty(token) || loginLog == null)
+            if (String.IsNullOrEmpty(clientId) || String.IsNullOrEmpty(hashedToken) || loginLog == null)
                 throw new ArgumentException("No null values or empty strings allowed.");
 
-            token = token.ToUpper();
+            hashedToken = hashedToken.ToUpper();
 
             // sets overridden log to success: false.
             if (Items.ContainsKey(clientId))
@@ -57,13 +57,12 @@ namespace LockDataService.Service
             // will override old entry
             Items[clientId] = new WaitlistItem
                 {
-                    HashedToken = token,
+                    HashedToken = hashedToken,
                     LoginLog = loginLog
                 };
 
             // Start Timer
-            Timer removeTimer = new Timer();
-            removeTimer.Interval = Timeframe;
+            Timer removeTimer = new Timer {Interval = Timeframe};
             removeTimer.Elapsed += (sender, e) => RemoveFromWaitlist(sender, e, clientId);
             removeTimer.Enabled = true;
 
@@ -121,7 +120,9 @@ namespace LockDataService.Service
         /// <returns>LoginInLog</returns>
         public static LoginLog GetLoginLog(string clientID)
         {
-            var login = Items[clientID].LoginLog;
+            LoginLog login = null;
+            if (Items.ContainsKey(clientID))
+                login = Items[clientID].LoginLog;
 
             // remove the login.
             //Items.Remove(clientID);

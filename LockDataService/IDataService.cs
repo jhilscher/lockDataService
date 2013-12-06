@@ -35,6 +35,12 @@ namespace LockDataService
 
         [OperationContract]
         [WebInvoke(Method = "POST",
+            RequestFormat = WebMessageFormat.Json,
+            UriTemplate = "setstatus")]
+        int SetStatusOfUser(UserModel json);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
             ResponseFormat = WebMessageFormat.Json,
             RequestFormat = WebMessageFormat.Json,
             UriTemplate = "loginRequest")]

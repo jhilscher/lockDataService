@@ -22,8 +22,15 @@ namespace LockDataService.Model
         [DataMember(Name = "clientId")]
         public string ClientId { get; set; }
 
-        [DataMember(Name = "salt")]
-        public string Salt { get; set; }
+        /// <summary>
+        /// Represents the status of this user.
+        /// 
+        /// 0: User Registration requested 
+        /// 1: User is registered / ok
+        /// 2: User is blocked
+        /// </summary>
+        [DataMember(Name = "status")]
+        public int Status { get; set; }
 
         [DataMember(Name = "secret")]
         public string Secret { get; set; }

@@ -19,11 +19,11 @@
           </Key>
           <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="ClientId" Type="nchar" MaxLength="256" />
-          <Property Name="Salt" Type="nchar" MaxLength="256" />
           <Property Name="Secret" Type="nchar" MaxLength="512" />
           <Property Name="UserName" Type="nchar" Nullable="false" MaxLength="256" />
           <Property Name="DateCreated" Type="date" />
           <Property Name="LastLogin" Type="date" />
+          <Property Name="Status" Type="int" />
         </EntityType>
         <EntityType Name="LoginLog">
           <Key>
@@ -34,7 +34,7 @@
           <Property Name="Success" Type="int" />
           <Property Name="IpAdress" Type="nchar" MaxLength="64" />
           <Property Name="UserAgent" Type="nchar" MaxLength="256" />
-          <Property Name="TimeStamp" Type="date" />
+          <Property Name="TimeStamp" Type="datetime" />
         </EntityType>
         <Association Name="FK_LoginLog_ClientIdentifier">
           <End Role="ClientIdentifier" Type="SSO_UserModel.Store.ClientIdentifier" Multiplicity="0..1">
@@ -67,13 +67,13 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="String" Name="Salt" MaxLength="256" FixedLength="true" Unicode="true" />
           <Property Type="String" Name="Secret" MaxLength="512" FixedLength="true" Unicode="true" />
           <Property Type="String" Name="UserName" Nullable="false" MaxLength="256" FixedLength="true" Unicode="true" />
           <Property Type="DateTime" Name="DateCreated" />
           <Property Type="DateTime" Name="LastLogin" />
           <NavigationProperty Name="LoginLog" Relationship="SSO_UserModel.FK_LoginLog_ClientIdentifier" FromRole="ClientIdentifier" ToRole="LoginLog" />
           <Property Type="String" Name="ClientId" MaxLength="256" FixedLength="true" Unicode="true" />
+          <Property Type="Int32" Name="Status" />
         </EntityType>
         <EntityType Name="LoginLog">
           <Key>
@@ -108,12 +108,12 @@
           <EntitySetMapping Name="ClientIdentifier">
             <EntityTypeMapping TypeName="SSO_UserModel.ClientIdentifier">
               <MappingFragment StoreEntitySet="ClientIdentifier">
+                <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="ClientId" ColumnName="ClientId" />
                 <ScalarProperty Name="LastLogin" ColumnName="LastLogin" />
                 <ScalarProperty Name="DateCreated" ColumnName="DateCreated" />
                 <ScalarProperty Name="UserName" ColumnName="UserName" />
                 <ScalarProperty Name="Secret" ColumnName="Secret" />
-                <ScalarProperty Name="Salt" ColumnName="Salt" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

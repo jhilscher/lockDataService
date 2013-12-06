@@ -20,12 +20,12 @@ namespace LockDataService.Model.Entity
         }
     
         public int Id { get; set; }
-        public string Salt { get; set; }
         public string Secret { get; set; }
         public string UserName { get; set; }
         public Nullable<System.DateTime> DateCreated { get; set; }
         public Nullable<System.DateTime> LastLogin { get; set; }
         public string ClientId { get; set; }
+        public Nullable<int> Status { get; set; }
     
         public virtual ICollection<LoginLog> LoginLog { get; set; }
     }

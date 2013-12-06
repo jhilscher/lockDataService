@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using LockDataService.Model.Entity;
@@ -27,9 +28,6 @@ namespace LockDataService.Model.Repository
             }
 
         }
-
-
- 
 
         /// <summary>
         /// Creates a new UserModel, or updates it, if it already exists.
@@ -67,7 +65,21 @@ namespace LockDataService.Model.Repository
         /// <returns>UserModel or null.</returns>
         public UserModel GetUserByUserName(string userName)
         {
-            UserModel userModel = ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userName));
+            UserModel userModel =
+                ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userName));
+
+            return userModel;
+        }
+
+        /// <summary>
+        /// Gets a user by it's clientId.
+        /// </summary>
+        /// <param name="clientId">string clientId</param>
+        /// <returns>UserModel</returns>
+        public UserModel GetUserByClientId(string clientId)
+        {
+            UserModel userModel =
+                ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.ClientId == clientId));
 
             return userModel;
         }
@@ -88,13 +100,14 @@ namespace LockDataService.Model.Repository
         /// <returns>Number of affected rows, should be 1.</returns>
         public int UpdateUser(UserModel userModel)
         {
-            ClientIdentifier clientIdentifier = Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
+            ClientIdentifier clientIdentifier =
+                Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
 
             if (clientIdentifier != null)
             {
                 clientIdentifier.LastLogin = DateTime.Now;
                 clientIdentifier.ClientId = userModel.ClientId;
-                clientIdentifier.Salt = userModel.Salt;
+                clientIdentifier.Status = userModel.Status;
                 clientIdentifier.Secret = userModel.Secret;
             }
 
@@ -109,16 +122,17 @@ namespace LockDataService.Model.Repository
         /// <returns>Number of affected rows, should be 1.</returns>
         public LoginLog AddLogEntry(UserModel userModel)
         {
-            ClientIdentifier clientIdentifier = Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
+            ClientIdentifier clientIdentifier =
+                Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
 
             LoginLog loginLog = new LoginLog
-            {
-                IpAdress = userModel.IpAdress,
-                TimeStamp = DateTime.Now,
-                UserAgent = userModel.UserAgent,
-                Success = 0
+                {
+                    IpAdress = userModel.IpAdress,
+                    TimeStamp = DateTime.Now,
+                    UserAgent = userModel.UserAgent,
+                    Success = 0
 
-            };
+                };
 
 
             if (clientIdentifier != null)
@@ -126,7 +140,7 @@ namespace LockDataService.Model.Repository
                 clientIdentifier.LastLogin = DateTime.Now;
 
                 if (clientIdentifier.LoginLog == null)
-                    clientIdentifier.LoginLog = new List<LoginLog>();
+                    clientIdentifier.LoginLog = new Collection<LoginLog>();
 
                 clientIdentifier.LoginLog.Add(loginLog);
             }
@@ -137,16 +151,21 @@ namespace LockDataService.Model.Repository
             return loginLog;
         }
 
+        /// <summary>
+        /// Gets the logs list.
+        /// </summary>
+        /// <param name="userName">UserName</param>
+        /// <returns>List of Logs</returns>
         public List<LoginLogModel> GetLogsFromUser(string userName)
         {
-
             var firstOrDefault = Entities.ClientIdentifier.Where(x => x.UserName.Equals(userName)).FirstOrDefault();
             if (firstOrDefault != null && firstOrDefault.LoginLog != null)
                 return firstOrDefault.LoginLog.Select(ConvertToLoginLogModel).ToList();
 
+
+
             return null;
         }
-
 
         /// <summary>
         /// Deletes a user.
@@ -155,11 +174,26 @@ namespace LockDataService.Model.Repository
         /// <returns>Number of affected rows.</returns>
         public int DeleteUser(string userName)
         {
+
             ClientIdentifier cId = Entities.ClientIdentifier.FirstOrDefault(x => x.UserName.Equals(userName));
+
+            // removes related logs
+            foreach (var log in Entities.LoginLog.Where(l => l.UserId == cId.Id))
+            {
+                Entities.LoginLog.Remove(log);
+            }
+
+
             Entities.ClientIdentifier.Remove(cId);
             return Entities.SaveChanges();
         }
 
+        /// <summary>
+        /// Sets the success of a login log entry.
+        /// </summary>
+        /// <param name="model">LoginLog</param>
+        /// <param name="success">Boolean if successful</param>
+        /// <returns>Number of affected rows. Should be 1.</returns>
         public int SetLoginSuccess(LoginLog model, bool success)
         {
             model.Success = success ? 1 : 0;
@@ -168,9 +202,16 @@ namespace LockDataService.Model.Repository
             return Entities.SaveChanges();
         }
 
+        /// <summary>
+        /// Calaculates a risk-ranking for a request
+        /// </summary>
+        /// <param name="userName">UserName</param>
+        /// <param name="userAgent">UserAgent</param>
+        /// <param name="ipAdress">IpAdress</param>
+        /// <returns>Double value of the risk-ranking, > 0 should be considered secure.</returns>
         public double CalculateRisk(string userName, string userAgent, string ipAdress)
         {
-            double risk = 0.0;
+            //double risk = 0.0;
 
             var firstOrDefault = Entities.ClientIdentifier.Where(x => x.UserName.Equals(userName)).FirstOrDefault();
 
@@ -178,49 +219,38 @@ namespace LockDataService.Model.Repository
             {
 
                 int total = firstOrDefault.LoginLog.Count();
-                //int hits = firstOrDefault.LoginLog.Count(x => x.IpAdress.Equals(ipAdress));
-                int closeIpHits = firstOrDefault.LoginLog.Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
+                //int hits = firstOrDefault.LoginLog.Count(x => x.IpAdress.Equals(ipAdress));s
 
-                //int closeUAHits = firstOrDefault.LoginLog.Count(x => x.UserAgent.Contains(userAgent));
+                // take successfull logins coming from the same ip range (last adress block is ignored)
+                int closeIpHits = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
+                                                .Count(
+                                                    x =>
+                                                    x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
-                if (total == 0)
-                    return 0.0;
+                int closeIpFails = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 0)
+                                                 .Count(
+                                                     x =>
+                                                     x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
-                int noHits = total - closeIpHits;
+                if (total == 0 || closeIpHits == 0)
+                    return 0.0; // first login
 
-                DateTime latest = firstOrDefault.LoginLog.OrderByDescending(x => x.TimeStamp).First().TimeStamp.Value;
+                int s = closeIpHits - closeIpFails;
+
+                DateTime latest = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
+                                                .Max(x => x.TimeStamp.Value);
 
                 var diff = DateTime.Now - latest;
-                int seconds = diff.Seconds;
-                int s = 2 * closeIpHits - total;
+                int hours = diff.Hours;
+
 
                 double order = Math.Log10(Math.Max(Math.Abs(s), 1));
                 int y = (s > 0) ? 1 : (s < 0) ? -1 : 0;
 
-                var result = order + y * seconds / 45000;
+                var result = y*order - hours/48; // 48 is as fixed value, to set hours in relation
 
 
                 return result;
-                /*
-                 * http://amix.dk/blog/post/19588
-                 * wilson score interval
-                 * 
-                n = ups + downs
-
-                if n == 0:
-                    return 0
-
-                z = 1.0 #1.0 = 85%, 1.6 = 95%
-                phat = float(ups) / n
-                return sqrt(phat+z*z/(2*n)-z*((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
-                */
-
-                double z = 1.0;
-
-                double phat = closeIpHits / total;
-
-                return Math.Sqrt(phat + z * z / (2 * total) - z * ((phat * (1 - phat) + z * z / (4 * total)) / total)) / (1 + z * z / total);
-
             }
 
             return 0.0;
@@ -228,19 +258,23 @@ namespace LockDataService.Model.Repository
 
         #region converter
 
-
+        /// <summary>
+        /// Converter.
+        /// </summary>
+        /// <param name="loginLog"></param>
+        /// <returns>LoginLogModel</returns>
         private static LoginLogModel ConvertToLoginLogModel(LoginLog loginLog)
         {
             if (loginLog == null)
                 return null;
 
             return new LoginLogModel
-            {
-                IpAdress = loginLog.IpAdress.Trim(),
-                Success = loginLog.Success,
-                TimeStamp = loginLog.TimeStamp,
-                UserAgent = loginLog.UserAgent.Trim()
-            };
+                {
+                    IpAdress = loginLog.IpAdress.Trim(),
+                    Success = loginLog.Success,
+                    TimeStamp = loginLog.TimeStamp,
+                    UserAgent = loginLog.UserAgent.Trim()
+                };
         }
 
         /// <summary>
@@ -254,15 +288,15 @@ namespace LockDataService.Model.Repository
                 return null;
 
             return new ClientIdentifier
-            {
-                ClientId = userModel.ClientId,
-                Salt = userModel.Salt,
-                Secret = userModel.Secret,
-                DateCreated = userModel.DateTimeCreated,
-                LastLogin = userModel.DateTimeLogin,
-                UserName = userModel.UserName,
-                LoginLog = null
-            };
+                {
+                    ClientId = userModel.ClientId,
+                    Status = userModel.Status,
+                    Secret = userModel.Secret,
+                    DateCreated = userModel.DateTimeCreated,
+                    LastLogin = userModel.DateTimeLogin,
+                    UserName = userModel.UserName,
+                    LoginLog = null
+                };
         }
 
         /// <summary>
@@ -276,20 +310,20 @@ namespace LockDataService.Model.Repository
                 return null;
 
             return new UserModel
-            {
-                ClientId = clientIdentifier.ClientId.Trim(),
-                Salt = clientIdentifier.Salt.Trim(),
-                Secret = clientIdentifier.Secret.Trim(),
-                DateTimeCreated = clientIdentifier.DateCreated,
-                DateTimeLogin = clientIdentifier.LastLogin,
-                UserName = clientIdentifier.UserName.Trim()
-            };
+                {
+                    ClientId = clientIdentifier.ClientId.Trim(),
+                    //Salt = clientIdentifier.Salt.Trim(),
+                    Secret = clientIdentifier.Secret.Trim(),
+                    DateTimeCreated = clientIdentifier.DateCreated,
+                    DateTimeLogin = clientIdentifier.LastLogin,
+                    UserName = clientIdentifier.UserName.Trim()
+                };
         }
 
         #endregion
 
 
-        public UserModel GetUserByClientId(string clientId)
+        public bool CalculateCurrentRisk(string userName, string userAgent, string ipAdress)
         {
             throw new NotImplementedException();
         }

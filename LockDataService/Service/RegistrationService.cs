@@ -75,7 +75,8 @@ namespace LockDataService.Service
                 {
                     ClientId = storedClientId,
                     Secret = user.Secret,
-                    UserName = user.UserName
+                    UserName = user.UserName,
+                    Status = 1 // set Status to registered
                 });
             user = null;
 

@@ -4,12 +4,12 @@
     <EntitySetMapping Name="ClientIdentifier">
       <EntityTypeMapping TypeName="SSO_UserModel.ClientIdentifier">
         <MappingFragment StoreEntitySet="ClientIdentifier">
+          <ScalarProperty Name="Status" ColumnName="Status" />
           <ScalarProperty Name="ClientId" ColumnName="ClientId" />
           <ScalarProperty Name="LastLogin" ColumnName="LastLogin" />
           <ScalarProperty Name="DateCreated" ColumnName="DateCreated" />
           <ScalarProperty Name="UserName" ColumnName="UserName" />
           <ScalarProperty Name="Secret" ColumnName="Secret" />
-          <ScalarProperty Name="Salt" ColumnName="Salt" />
           <ScalarProperty Name="Id" ColumnName="Id" />
         </MappingFragment>
       </EntityTypeMapping>

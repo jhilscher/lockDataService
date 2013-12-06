@@ -37,5 +37,7 @@ namespace LockDataService.Model.Repository
         int SetLoginSuccess(LoginLog model, bool success);
 
         double CalculateRisk(string userName, string userAgent, string ipAdress);
+
+        bool CalculateCurrentRisk(string userName, string userAgent, string ipAdress);
     }
 }

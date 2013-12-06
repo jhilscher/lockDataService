@@ -43,6 +43,16 @@ namespace LockDataService
             return resp;
         }
 
+        public int SetStatusOfUser(UserModel json)
+        {
+            var user = _repository.GetUserByUserName(json.UserName);
+            if (user == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            user.Status = json.Status;
+            return _repository.UpdateUser(user);
+        }
+
         public int Delete(string userName)
         {
             int code = _repository.DeleteUser(userName);
@@ -61,6 +71,10 @@ namespace LockDataService
             catch (ArgumentException e)
             {
                 throw new WebFaultException(HttpStatusCode.NoContent);
+            }
+            catch (AccessViolationException ex)
+            {
+                throw new WebFaultException(HttpStatusCode.Forbidden);
             }
             return token;
         }
@@ -82,7 +96,8 @@ namespace LockDataService
                 {
                     UserName = user.UserName,
                     DateTimeCreated = user.DateTimeCreated,
-                    DateTimeLogin = user.DateTimeLogin
+                    DateTimeLogin = user.DateTimeLogin,
+                    Status = user.Status
                 };
 
             return userModel;
