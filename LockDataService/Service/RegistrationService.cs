@@ -21,7 +21,7 @@ namespace LockDataService.Service
         //private static readonly IRepository Repository = new MockRepository();
 
         /// <summary>
-        /// Size of the random salt in bytes.
+        /// Size of the random id in bytes.
         /// </summary>
         private const int RandomByteSize = 64;
 

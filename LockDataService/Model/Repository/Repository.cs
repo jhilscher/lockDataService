@@ -238,11 +238,12 @@ namespace LockDataService.Model.Repository
         }
 
         /// <summary>
-        /// 
+        /// Gets the risk level of a current auth-try.
+        /// Will deny auth if there are more than 3 failed auths in the last 3 mins.
         /// </summary>
-        /// <param name="userName"></param>
-        /// <param name="userAgent"></param>
-        /// <param name="ipAdress"></param>
+        /// <param name="userName">UserName</param>
+        /// <param name="userAgent">UserAgent of the request.</param>
+        /// <param name="ipAdress">IP-Adress of the request.</param>
         /// <returns></returns>
         public bool CalculateCurrentRisk(string userName, string userAgent, string ipAdress)
         {
