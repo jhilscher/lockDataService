@@ -138,13 +138,18 @@ namespace LockDataService.Service
         /// <summary>
         /// Validates a token.
         /// </summary>
-        /// <param name="token">Token</param>
-        /// <param name="clientID">client id, not hashed</param>
-        /// <returns>bool, if token is valid</returns>
-        public static string ValidateToken(String token, String clientID)
+        /// <param name="userModel">UserModel</param>
+        /// <returns>UserName, if token is valid</returns>
+        public static string ValidateToken(UserModel userModel)
         {
+            string clientID = userModel.ClientId;
+            string token = userModel.Token;
 
             if (String.IsNullOrEmpty(clientID) || String.IsNullOrEmpty(token))
+                return String.Empty;
+
+            // check for DoS to this clientID
+            if (!Repository.CheckForDoS(clientID, userModel.IpAdress))
                 return String.Empty;
 
             // gets the old token from the waitlist
@@ -152,8 +157,31 @@ namespace LockDataService.Service
 
             LoginLog loginLog = AuthHandler.GetLoginLog(clientID);
 
+            // if no value in waitlist
+            if (String.IsNullOrEmpty(tokenFromWaitlist))
+            {
+                // make log entry
+                var newlog = new LoginLog()
+                    {
+                        MobileIpAdress = userModel.IpAdress,
+                        MobileUserAgent = userModel.UserAgent,
+                        Success = 0,
+                        TimeStamp = DateTime.Now,
+                        ClientIdentifier = null,
+                        UserId = null,
+                        ClientId = clientID 
+                    };
+                Repository.CreateLog(newlog);
+
+                return String.Empty;
+            }
+
             if (loginLog == null || String.IsNullOrEmpty(tokenFromWaitlist))
                 return String.Empty;
+
+            // Add properties to log
+            loginLog.MobileIpAdress = userModel.IpAdress;
+            loginLog.MobileUserAgent = userModel.UserAgent;
 
             Repository.SetLoginSuccess(loginLog, false);
 

@@ -27,12 +27,15 @@ namespace LockDataService.Model.Repository
 
         int UpdateUser(UserModel userModel);
 
+        bool CheckForDoS(string clientId, string ipAdress);
 
         int DeleteUser(string userName);
 
         LoginLog AddLogEntry(UserModel userModel);
 
         List<LoginLogModel> GetLogsFromUser(string userName);
+
+        int CreateLog(LoginLog loginLog);
 
         int SetLoginSuccess(LoginLog model, bool success);
 

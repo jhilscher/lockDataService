@@ -15,11 +15,14 @@ namespace LockDataService.Model.Entity
     public partial class LoginLog
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public Nullable<int> UserId { get; set; }
         public Nullable<int> Success { get; set; }
         public string IpAdress { get; set; }
         public string UserAgent { get; set; }
         public Nullable<System.DateTime> TimeStamp { get; set; }
+        public string MobileIpAdress { get; set; }
+        public string MobileUserAgent { get; set; }
+        public string ClientId { get; set; }
     
         public virtual ClientIdentifier ClientIdentifier { get; set; }
     }

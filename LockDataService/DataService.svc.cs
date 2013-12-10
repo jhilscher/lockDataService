@@ -81,7 +81,7 @@ namespace LockDataService
 
         public string ValidateToken(UserModel json)
         {
-            return AuthService.ValidateToken(json.Token, json.ClientId);
+            return AuthService.ValidateToken(json);
         }
 
         public UserModel GetUserData(string userName)

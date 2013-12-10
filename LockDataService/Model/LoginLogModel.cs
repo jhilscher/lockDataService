@@ -23,6 +23,11 @@ namespace LockDataService.Model
         [DataMember(Name = "timeStamp")]
         public Nullable<System.DateTime> TimeStamp { get; set; }
 
-     
+        [DataMember(Name = "mobileIpAdress")]
+        public string MobileIpAdress { get; set; }
+
+        [DataMember(Name = "mobileUserAgent")]
+        public string MobileUserAgent { get; set; }
+
     }
 }

@@ -30,6 +30,9 @@
     <Property Name="IpAdress" Type="nchar" MaxLength="64" />
     <Property Name="UserAgent" Type="nchar" MaxLength="256" />
     <Property Name="TimeStamp" Type="datetime" />
+    <Property Name="MobileIpAdress" Type="nchar" MaxLength="64" />
+    <Property Name="MobileUserAgent" Type="nchar" MaxLength="256" />
+    <Property Name="ClientId" Type="nchar" MaxLength="256" />
   </EntityType>
   <Association Name="FK_LoginLog_ClientIdentifier">
     <End Role="ClientIdentifier" Type="SSO_UserModel.Store.ClientIdentifier" Multiplicity="0..1">

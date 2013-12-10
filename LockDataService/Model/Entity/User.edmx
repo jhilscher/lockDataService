@@ -35,6 +35,9 @@
           <Property Name="IpAdress" Type="nchar" MaxLength="64" />
           <Property Name="UserAgent" Type="nchar" MaxLength="256" />
           <Property Name="TimeStamp" Type="datetime" />
+          <Property Name="MobileIpAdress" Type="nchar" MaxLength="64" />
+          <Property Name="MobileUserAgent" Type="nchar" MaxLength="256" />
+          <Property Name="ClientId" Type="nchar" MaxLength="256" />
         </EntityType>
         <Association Name="FK_LoginLog_ClientIdentifier">
           <End Role="ClientIdentifier" Type="SSO_UserModel.Store.ClientIdentifier" Multiplicity="0..1">
@@ -86,6 +89,9 @@
           <Property Type="String" Name="UserAgent" MaxLength="256" FixedLength="true" Unicode="true" />
           <Property Type="DateTime" Name="TimeStamp" />
           <NavigationProperty Name="ClientIdentifier" Relationship="SSO_UserModel.FK_LoginLog_ClientIdentifier" FromRole="LoginLog" ToRole="ClientIdentifier" />
+          <Property Type="String" Name="MobileIpAdress" MaxLength="64" FixedLength="true" Unicode="true" />
+          <Property Type="String" Name="MobileUserAgent" MaxLength="256" FixedLength="true" Unicode="true" />
+          <Property Type="String" Name="ClientId" MaxLength="256" FixedLength="true" Unicode="true" />
         </EntityType>
         <Association Name="FK_LoginLog_ClientIdentifier">
           <End Type="SSO_UserModel.ClientIdentifier" Role="ClientIdentifier" Multiplicity="1" />
@@ -121,6 +127,9 @@
           <EntitySetMapping Name="LoginLog">
             <EntityTypeMapping TypeName="SSO_UserModel.LoginLog">
               <MappingFragment StoreEntitySet="LoginLog">
+                <ScalarProperty Name="ClientId" ColumnName="ClientId" />
+                <ScalarProperty Name="MobileUserAgent" ColumnName="MobileUserAgent" />
+                <ScalarProperty Name="MobileIpAdress" ColumnName="MobileIpAdress" />
                 <ScalarProperty Name="TimeStamp" ColumnName="TimeStamp" />
                 <ScalarProperty Name="UserAgent" ColumnName="UserAgent" />
                 <ScalarProperty Name="IpAdress" ColumnName="IpAdress" />
@@ -153,7 +162,7 @@
     <Diagrams>
       <Diagram Name="User" >
         <EntityTypeShape EntityType="SSO_UserModel.ClientIdentifier" Width="1.5" PointX="0.75" PointY="0.75" Height="2.5571907552083331" />
-        <EntityTypeShape EntityType="SSO_UserModel.LoginLog" Width="1.5" PointX="3" PointY="0.875" Height="2.3648893229166674" />
+        <EntityTypeShape EntityType="SSO_UserModel.LoginLog" Width="1.5" PointX="3" PointY="0.875" Height="2.364889322916667" />
         <AssociationConnector Association="SSO_UserModel.FK_LoginLog_ClientIdentifier" >
           <ConnectorPoint PointX="2.25" PointY="2.0574446614583337" />
           <ConnectorPoint PointX="3" PointY="2.0574446614583337" />

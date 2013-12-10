@@ -17,6 +17,9 @@
     <EntitySetMapping Name="LoginLog">
       <EntityTypeMapping TypeName="SSO_UserModel.LoginLog">
         <MappingFragment StoreEntitySet="LoginLog">
+          <ScalarProperty Name="ClientId" ColumnName="ClientId" />
+          <ScalarProperty Name="MobileUserAgent" ColumnName="MobileUserAgent" />
+          <ScalarProperty Name="MobileIpAdress" ColumnName="MobileIpAdress" />
           <ScalarProperty Name="TimeStamp" ColumnName="TimeStamp" />
           <ScalarProperty Name="UserAgent" ColumnName="UserAgent" />
           <ScalarProperty Name="IpAdress" ColumnName="IpAdress" />

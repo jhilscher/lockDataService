@@ -327,5 +327,17 @@ namespace LockDataService.Model.Repository
         {
             throw new NotImplementedException();
         }
+
+
+        public int CreateLog(LoginLog loginLog)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public bool CheckForDoS(string clientId, string ipAdress)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

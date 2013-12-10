@@ -188,6 +188,17 @@ namespace LockDataService.Model.Repository
         }
 
         /// <summary>
+        /// Save a log into db.
+        /// </summary>
+        /// <param name="loginLog">LoginLog</param>
+        /// <returns>Number of affected rows. Should be 1.</returns>
+        public int CreateLog(LoginLog loginLog)
+        {
+            Entities.LoginLog.Add(loginLog);
+            return Entities.SaveChanges();
+        }
+
+        /// <summary>
         /// Calaculates a risk-ranking for a request
         /// </summary>
         /// <param name="userName">UserName</param>
@@ -266,6 +277,28 @@ namespace LockDataService.Model.Repository
             return true;
         }
 
+        /// <summary>
+        /// Checks for dDos on the API and denys if too much requests.
+        /// </summary>
+        /// <param name="clientId">ClientId String</param>
+        /// <param name="ipAdress">IP-Adress String</param>
+        /// <returns>Bool if considered valid.</returns>
+        public bool CheckForDoS(string clientId, string ipAdress)
+        {
+            var timeDiff = DateTime.Now.AddMinutes(-3); // 3minutes
+
+            var ipSubstring = ipAdress.Substring(0, ipAdress.LastIndexOf('.'));
+
+            var spams = Entities.LoginLog.Where(x => x.ClientId.Equals(clientId) && x.Success.HasValue &&
+                x.Success.Value == 0 && x.MobileIpAdress.Contains(ipSubstring))
+                .Count(x => x.TimeStamp > timeDiff);
+
+            if (spams > 3)
+                return false;
+
+            return true;
+        }
+
         #region converter
 
         /// <summary>
@@ -283,7 +316,9 @@ namespace LockDataService.Model.Repository
                     IpAdress = loginLog.IpAdress.Trim(),
                     Success = loginLog.Success,
                     TimeStamp = loginLog.TimeStamp,
-                    UserAgent = loginLog.UserAgent.Trim()
+                    UserAgent = loginLog.UserAgent.Trim(),
+                    MobileIpAdress = loginLog.MobileIpAdress,
+                    MobileUserAgent = loginLog.MobileUserAgent
                 };
         }
 

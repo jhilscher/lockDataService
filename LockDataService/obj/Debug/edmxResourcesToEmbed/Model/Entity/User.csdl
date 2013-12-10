@@ -32,6 +32,9 @@
     <Property Type="String" Name="UserAgent" MaxLength="256" FixedLength="true" Unicode="true" />
     <Property Type="DateTime" Name="TimeStamp" />
     <NavigationProperty Name="ClientIdentifier" Relationship="SSO_UserModel.FK_LoginLog_ClientIdentifier" FromRole="LoginLog" ToRole="ClientIdentifier" />
+    <Property Type="String" Name="MobileIpAdress" MaxLength="64" FixedLength="true" Unicode="true" />
+    <Property Type="String" Name="MobileUserAgent" MaxLength="256" FixedLength="true" Unicode="true" />
+    <Property Type="String" Name="ClientId" MaxLength="256" FixedLength="true" Unicode="true" />
   </EntityType>
   <Association Name="FK_LoginLog_ClientIdentifier">
     <End Type="SSO_UserModel.ClientIdentifier" Role="ClientIdentifier" Multiplicity="1" />
