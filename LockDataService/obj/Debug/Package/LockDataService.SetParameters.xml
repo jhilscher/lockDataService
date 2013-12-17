@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <setParameter name="IIS Web Application Name" value="Default Web Site/LockDataService_deploy" />
+  <setParameter name="SSO_UserEntities-Web.config Connection String" value="metadata=res://*/Model.Entity.User.csdl|res://*/Model.Entity.User.ssdl|res://*/Model.Entity.User.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=dewdfias062;initial catalog=SSO_User;persist security info=True;user id=DataService;Password=l3nFiWlT;multipleactiveresultsets=True;App=EntityFramework&quot;" />
+</parameters>

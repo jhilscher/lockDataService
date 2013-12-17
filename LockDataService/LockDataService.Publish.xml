@@ -1,2 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<publishData />
+<publishData>
+  <publishProfile publishUrl="\\dewdfias062\DataService" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Profile1" publishMethod="FileSystem" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="False">
+    <file relUrl="bin/LockDataService.pdb" publishTime="12/16/2013 10:18:10" />
+    <file relUrl="DataService.svc" publishTime="10/24/2013 16:26:36" />
+    <file relUrl="bin/LockDataService.dll" publishTime="12/16/2013 10:18:10" />
+    <file relUrl="Web.config" publishTime="12/12/2013 16:54:24" />
+  </publishProfile>
+  <publishProfile publishUrl="C:\DataService" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Profile2" publishMethod="FileSystem" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
+    <file relUrl="bin/LockDataService.pdb" publishTime="12/17/2013 10:25:15" />
+    <file relUrl="DataService.svc" publishTime="10/24/2013 16:26:36" />
+    <file relUrl="bin/LockDataService.dll" publishTime="12/17/2013 10:25:15" />
+    <file relUrl="Web.config" publishTime="12/12/2013 16:54:24" />
+  </publishProfile>
+</publishData>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="SSO_UserModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+  <EntityContainer Name="SSO_UserEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="ClientIdentifier" EntityType="SSO_UserModel.ClientIdentifier" />
+    <EntitySet Name="LoginLog" EntityType="SSO_UserModel.LoginLog" />
+    <AssociationSet Name="FK_LoginLog_ClientIdentifier" Association="SSO_UserModel.FK_LoginLog_ClientIdentifier">
+      <End Role="ClientIdentifier" EntitySet="ClientIdentifier" />
+      <End Role="LoginLog" EntitySet="LoginLog" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="ClientIdentifier">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="Secret" MaxLength="512" FixedLength="true" Unicode="true" />
+    <Property Type="String" Name="UserName" Nullable="false" MaxLength="256" FixedLength="true" Unicode="true" />
+    <Property Type="DateTime" Name="DateCreated" />
+    <Property Type="DateTime" Name="LastLogin" />
+    <NavigationProperty Name="LoginLog" Relationship="SSO_UserModel.FK_LoginLog_ClientIdentifier" FromRole="ClientIdentifier" ToRole="LoginLog" />
+    <Property Type="String" Name="ClientId" MaxLength="256" FixedLength="true" Unicode="true" />
+    <Property Type="Int32" Name="Status" />
+  </EntityType>
+  <EntityType Name="LoginLog">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="UserId" Nullable="false" />
+    <Property Type="Int32" Name="Success" />
+    <Property Type="String" Name="IpAdress" MaxLength="64" FixedLength="true" Unicode="true" />
+    <Property Type="String" Name="UserAgent" MaxLength="256" FixedLength="true" Unicode="true" />
+    <Property Type="DateTime" Name="TimeStamp" />
+    <NavigationProperty Name="ClientIdentifier" Relationship="SSO_UserModel.FK_LoginLog_ClientIdentifier" FromRole="LoginLog" ToRole="ClientIdentifier" />
+    <Property Type="String" Name="MobileIpAdress" MaxLength="64" FixedLength="true" Unicode="true" />
+    <Property Type="String" Name="MobileUserAgent" MaxLength="256" FixedLength="true" Unicode="true" />
+    <Property Type="String" Name="ClientId" MaxLength="256" FixedLength="true" Unicode="true" />
+  </EntityType>
+  <Association Name="FK_LoginLog_ClientIdentifier">
+    <End Type="SSO_UserModel.ClientIdentifier" Role="ClientIdentifier" Multiplicity="1" />
+    <End Type="SSO_UserModel.LoginLog" Role="LoginLog" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ClientIdentifier">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="LoginLog">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

@@ -239,7 +239,7 @@ namespace LockDataService.Model.Repository
                 double order = Math.Log10(Math.Max(Math.Abs(s), 1));
                 int y = (s > 0) ? 1 : (s < 0) ? -1 : 0;
 
-                var result = y*order - hours/48; // 48 is as fixed value, to set hours in relation
+                var result = y*order - hours/96; // 96 is as fixed value, to set hours in relation
 
 
                 return result;
@@ -285,18 +285,15 @@ namespace LockDataService.Model.Repository
         /// <returns>Bool if considered valid.</returns>
         public bool CheckForDoS(string clientId, string ipAdress)
         {
-            var timeDiff = DateTime.Now.AddMinutes(-3); // 3minutes
+            var timeDiff = DateTime.Now.AddMinutes(-3); // 3 minutes ago
 
-            var ipSubstring = ipAdress.Substring(0, ipAdress.LastIndexOf('.'));
+            var ipSubstring = ipAdress.Substring(0, ipAdress.LastIndexOf('.')); // ignore last octet
 
-            var spams = Entities.LoginLog.Where(x => x.ClientId.Equals(clientId) && x.Success.HasValue &&
-                x.Success.Value == 0 && x.MobileIpAdress.Contains(ipSubstring))
-                .Count(x => x.TimeStamp > timeDiff);
+            var failedTrys = Entities.LoginLog.Count(x => x.ClientId.Equals(clientId) && x.Success.HasValue &&
+                                                     x.Success.Value == 0 && x.MobileIpAdress.StartsWith(ipSubstring) && x.TimeStamp > timeDiff);
 
-            if (spams > 3)
-                return false;
+            return failedTrys <= 3;
 
-            return true;
         }
 
         #region converter
@@ -317,8 +314,8 @@ namespace LockDataService.Model.Repository
                     Success = loginLog.Success,
                     TimeStamp = loginLog.TimeStamp,
                     UserAgent = loginLog.UserAgent.Trim(),
-                    MobileIpAdress = loginLog.MobileIpAdress,
-                    MobileUserAgent = loginLog.MobileUserAgent
+                    MobileIpAdress = loginLog.MobileIpAdress == null ? null : loginLog.MobileIpAdress.Trim(),
+                    MobileUserAgent = loginLog.MobileUserAgent == null ? null : loginLog.MobileUserAgent.Trim()
                 };
         }
 

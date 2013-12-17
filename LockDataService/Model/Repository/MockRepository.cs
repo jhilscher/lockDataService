@@ -65,8 +65,7 @@ namespace LockDataService.Model.Repository
         /// <returns>UserModel or null.</returns>
         public UserModel GetUserByUserName(string userName)
         {
-            UserModel userModel =
-                ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userName));
+            UserModel userModel = ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userName));
 
             return userModel;
         }
@@ -78,8 +77,7 @@ namespace LockDataService.Model.Repository
         /// <returns>UserModel</returns>
         public UserModel GetUserByClientId(string clientId)
         {
-            UserModel userModel =
-                ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.ClientId == clientId));
+            UserModel userModel = ConvertToUserModel(Entities.ClientIdentifier.FirstOrDefault(x => x.ClientId == clientId));
 
             return userModel;
         }
@@ -100,8 +98,7 @@ namespace LockDataService.Model.Repository
         /// <returns>Number of affected rows, should be 1.</returns>
         public int UpdateUser(UserModel userModel)
         {
-            ClientIdentifier clientIdentifier =
-                Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
+            ClientIdentifier clientIdentifier = Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
 
             if (clientIdentifier != null)
             {
@@ -122,17 +119,16 @@ namespace LockDataService.Model.Repository
         /// <returns>Number of affected rows, should be 1.</returns>
         public LoginLog AddLogEntry(UserModel userModel)
         {
-            ClientIdentifier clientIdentifier =
-                Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
+            ClientIdentifier clientIdentifier = Entities.ClientIdentifier.FirstOrDefault(x => x.UserName == userModel.UserName);
 
             LoginLog loginLog = new LoginLog
-                {
-                    IpAdress = userModel.IpAdress,
-                    TimeStamp = DateTime.Now,
-                    UserAgent = userModel.UserAgent,
-                    Success = 0
+            {
+                IpAdress = userModel.IpAdress,
+                TimeStamp = DateTime.Now,
+                UserAgent = userModel.UserAgent,
+                Success = 0
 
-                };
+            };
 
 
             if (clientIdentifier != null)
@@ -203,6 +199,17 @@ namespace LockDataService.Model.Repository
         }
 
         /// <summary>
+        /// Save a log into db.
+        /// </summary>
+        /// <param name="loginLog">LoginLog</param>
+        /// <returns>Number of affected rows. Should be 1.</returns>
+        public int CreateLog(LoginLog loginLog)
+        {
+            Entities.LoginLog.Add(loginLog);
+            return Entities.SaveChanges();
+        }
+
+        /// <summary>
         /// Calaculates a risk-ranking for a request
         /// </summary>
         /// <param name="userName">UserName</param>
@@ -223,14 +230,10 @@ namespace LockDataService.Model.Repository
 
                 // take successfull logins coming from the same ip range (last adress block is ignored)
                 int closeIpHits = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
-                                                .Count(
-                                                    x =>
-                                                    x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
+                    .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
                 int closeIpFails = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 0)
-                                                 .Count(
-                                                     x =>
-                                                     x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
+                    .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
                 if (total == 0 || closeIpHits == 0)
                     return 0.0; // first login
@@ -238,7 +241,7 @@ namespace LockDataService.Model.Repository
                 int s = closeIpHits - closeIpFails;
 
                 DateTime latest = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
-                                                .Max(x => x.TimeStamp.Value);
+                    .Max(x => x.TimeStamp.Value);
 
                 var diff = DateTime.Now - latest;
                 int hours = diff.Hours;
@@ -247,13 +250,63 @@ namespace LockDataService.Model.Repository
                 double order = Math.Log10(Math.Max(Math.Abs(s), 1));
                 int y = (s > 0) ? 1 : (s < 0) ? -1 : 0;
 
-                var result = y*order - hours/48; // 48 is as fixed value, to set hours in relation
+                var result = y * order - hours / 48; // 48 is as fixed value, to set hours in relation
 
 
                 return result;
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Gets the risk level of a current auth-try.
+        /// Will deny auth if there are more than 3 failed auths in the last 3 mins.
+        /// </summary>
+        /// <param name="userName">UserName</param>
+        /// <param name="userAgent">UserAgent of the request.</param>
+        /// <param name="ipAdress">IP-Adress of the request.</param>
+        /// <returns></returns>
+        public bool CalculateCurrentRisk(string userName, string userAgent, string ipAdress)
+        {
+            return true;
+
+            var firstOrDefault = Entities.ClientIdentifier.Where(x => x.UserName.Equals(userName)).FirstOrDefault();
+
+            if (firstOrDefault == null)
+                return true;
+
+            var timeDiff = DateTime.Now.AddMinutes(-3); // 3minutes
+
+            var closeIpFails =
+                firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 0)
+                              .Where(x => x.TimeStamp > timeDiff && x.UserAgent.Equals(userAgent))
+                              .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
+
+            // false, if more then 3 login attempts from this ip in the last 3 mins
+            if (closeIpFails > 3)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks for dDos on the API and denys if too much requests.
+        /// </summary>
+        /// <param name="clientId">ClientId String</param>
+        /// <param name="ipAdress">IP-Adress String</param>
+        /// <returns>Bool if considered valid.</returns>
+        public bool CheckForDoS(string clientId, string ipAdress)
+        {
+            var timeDiff = DateTime.Now.AddMinutes(-3); // 3 minutes ago
+
+            var ipSubstring = ipAdress.Substring(0, ipAdress.LastIndexOf('.')); // ignore last octet
+
+            var failedTrys = Entities.LoginLog.Count(x => x.ClientId.Equals(clientId) && x.Success.HasValue &&
+                                                     x.Success.Value == 0 && x.MobileIpAdress.StartsWith(ipSubstring) && x.TimeStamp > timeDiff);
+
+            return failedTrys <= 3;
+
         }
 
         #region converter
@@ -269,12 +322,14 @@ namespace LockDataService.Model.Repository
                 return null;
 
             return new LoginLogModel
-                {
-                    IpAdress = loginLog.IpAdress.Trim(),
-                    Success = loginLog.Success,
-                    TimeStamp = loginLog.TimeStamp,
-                    UserAgent = loginLog.UserAgent.Trim()
-                };
+            {
+                IpAdress = loginLog.IpAdress.Trim(),
+                Success = loginLog.Success,
+                TimeStamp = loginLog.TimeStamp,
+                UserAgent = loginLog.UserAgent.Trim(),
+                MobileIpAdress = loginLog.MobileIpAdress == null ? null : loginLog.MobileIpAdress.Trim(),
+                MobileUserAgent = loginLog.MobileUserAgent == null ? null : loginLog.MobileUserAgent.Trim()
+            };
         }
 
         /// <summary>
@@ -288,15 +343,15 @@ namespace LockDataService.Model.Repository
                 return null;
 
             return new ClientIdentifier
-                {
-                    ClientId = userModel.ClientId,
-                    Status = userModel.Status,
-                    Secret = userModel.Secret,
-                    DateCreated = userModel.DateTimeCreated,
-                    LastLogin = userModel.DateTimeLogin,
-                    UserName = userModel.UserName,
-                    LoginLog = null
-                };
+            {
+                ClientId = userModel.ClientId,
+                Status = userModel.Status,
+                Secret = userModel.Secret,
+                DateCreated = userModel.DateTimeCreated,
+                LastLogin = userModel.DateTimeLogin,
+                UserName = userModel.UserName,
+                LoginLog = null
+            };
         }
 
         /// <summary>
@@ -309,35 +364,21 @@ namespace LockDataService.Model.Repository
             if (clientIdentifier == null)
                 return null;
 
-            return new UserModel
-                {
-                    ClientId = clientIdentifier.ClientId.Trim(),
-                    //Salt = clientIdentifier.Salt.Trim(),
-                    Secret = clientIdentifier.Secret.Trim(),
-                    DateTimeCreated = clientIdentifier.DateCreated,
-                    DateTimeLogin = clientIdentifier.LastLogin,
-                    UserName = clientIdentifier.UserName.Trim()
-                };
+            var userModel = new UserModel
+            {
+                ClientId = clientIdentifier.ClientId.Trim(),
+                Secret = clientIdentifier.Secret.Trim(),
+                DateTimeCreated = clientIdentifier.DateCreated,
+                DateTimeLogin = clientIdentifier.LastLogin,
+                UserName = clientIdentifier.UserName.Trim()
+            };
+
+            if (clientIdentifier.Status.HasValue)
+                userModel.Status = clientIdentifier.Status.Value;
+
+            return userModel;
         }
 
         #endregion
-
-
-        public bool CalculateCurrentRisk(string userName, string userAgent, string ipAdress)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public int CreateLog(LoginLog loginLog)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public bool CheckForDoS(string clientId, string ipAdress)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

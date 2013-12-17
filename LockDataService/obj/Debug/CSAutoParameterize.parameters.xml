@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="SSO_UserEntities-Web.config Connection String" description="SSO_UserEntities Connection String used in web.config by the application to access the database." defaultvalue="metadata=res://*/Model.Entity.User.csdl|res://*/Model.Entity.User.ssdl|res://*/Model.Entity.User.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=dewdfias062;initial catalog=SSO_User;persist security info=True;user id=DataService;Password=l3nFiWlT;multipleactiveresultsets=True;App=EntityFramework&quot;" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="C:\\Users\\D059130\\git\\LockDataService\\LockDataService\\obj\\Debug\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='SSO_UserEntities']/@connectionString" />
+  </parameter>
+</parameters>
