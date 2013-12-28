@@ -218,29 +218,28 @@ namespace LockDataService.Model.Repository
                 //int hits = firstOrDefault.LoginLog.Count(x => x.IpAdress.Equals(ipAdress));s
 
                 // take successfull logins coming from the same ip range (last adress block is ignored)
-                int closeIpHits = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
-                    .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
+                int closeIpHits = firstOrDefault.LoginLog
+                    .Count(x => x.Success != null && x.Success.Value == 1 && x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
-                int closeIpFails = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 0)
-                    .Count(x => x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
-
-                if (total == 0 || closeIpHits == 0)
-                    return 0.0; // first login
+                int closeIpFails = firstOrDefault.LoginLog
+                    .Count(x => x.Success != null && x.Success.Value == 0 && x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))));
 
                 int s = closeIpHits - closeIpFails;
 
-                DateTime latest = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 1)
+                if (total == 0 || closeIpHits == 0 || s <= 0)
+                    return 0.0; // first login
+
+                DateTime latest = firstOrDefault.LoginLog.Where(x => x.Success != null && x.Success.Value == 0 
+                    && x.IpAdress.Contains(ipAdress.Substring(0, ipAdress.LastIndexOf('.'))))
                     .Max(x => x.TimeStamp.Value);
 
                 var diff = DateTime.Now - latest;
                 int hours = diff.Hours;
 
-
-                double order = Math.Log10(Math.Max(Math.Abs(s), 1));
-                int y = (s > 0) ? 1 : (s < 0) ? -1 : 0;
-
-                var result = y*order - hours/96; // 96 is as fixed value, to set hours in relation
-
+                // get log base 10 of s
+                double log = Math.Log10(s);
+                
+                var result = log - hours/96; // 96 is as fixed value, to set hours in relation
 
                 return result;
             }

@@ -2,3 +2,4 @@ C:\Users\D059130\git\LockDataService\LockDataService\bin\LockDataService.dll
 C:\Users\D059130\git\LockDataService\LockDataService\bin\LockDataService.pdb
 C:\Users\D059130\git\LockDataService\LockDataService\obj\Release\LockDataService.dll
 C:\Users\D059130\git\LockDataService\LockDataService\obj\Release\LockDataService.pdb
+C:\Users\D059130\git\LockDataService\LockDataService\obj\Release\LockDataService.csprojResolveAssemblyReference.cache

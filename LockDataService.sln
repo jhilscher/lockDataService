@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LockDataService", "LockDataService\LockDataService.csproj", "{881B65EB-A958-4904-B4D1-4AAF2300160B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "ClassLibrary1\ClassLibrary1.csproj", "{FD15EC04-3DD6-454B-937A-E867C88C1545}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{881B65EB-A958-4904-B4D1-4AAF2300160B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{881B65EB-A958-4904-B4D1-4AAF2300160B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{881B65EB-A958-4904-B4D1-4AAF2300160B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD15EC04-3DD6-454B-937A-E867C88C1545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD15EC04-3DD6-454B-937A-E867C88C1545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD15EC04-3DD6-454B-937A-E867C88C1545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD15EC04-3DD6-454B-937A-E867C88C1545}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

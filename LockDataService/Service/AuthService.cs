@@ -24,7 +24,7 @@ namespace LockDataService.Service
         /// <summary>
         /// Size of the token in bytes.
         /// </summary>
-        private const int RandomByteSize = 215; // 117 max for 1024bit RSA, 215 max for 2048bit
+        private const int RandomByteSize = 117; // 117 max for 1024bit RSA, 215 max for 2048bit
 
         /// <summary>
         /// Iterations of the pbkdf2-hash-function.
